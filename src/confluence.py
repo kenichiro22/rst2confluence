@@ -14,7 +14,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     References:
     * ReST: http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
-    * Confluence Wiki: http://confluence.atlassian.com/renderer/notationhelp.action
+    * Confluence Wiki: http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
     """
 
     empty_methods = [
@@ -236,3 +236,37 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_entry(self, node):
         sys.stderr.write("")
+
+    """Definition list
+    Confluence wiki does not support definition list
+    Definition list is converted to h6 section
+    """
+    def visit_definition_list(self, node):
+        pass
+
+    def depart_definition_list(self, node):
+        pass
+
+    def visit_definition_list_item(self, node):
+        pass
+
+    def depart_definition_list_item(self, node):
+        pass
+
+    def visit_term(self, node):
+        self._add("h6.")
+
+    def depart_term(self, node):
+        self._newline()
+
+    def visit_definition(self, node):
+        self.first = True
+
+    def depart_definition(self, node):
+        self._newline()
+
+    def visit_comment(self, node):
+        pass
+
+    def depart_comment(self, node):
+        pass
