@@ -1,6 +1,10 @@
-.. image:: picture.jpeg
+.. image:: picture1.jpeg
    :height: 100px
    :width: 200 px
    :scale: 50 %
    :alt: alternate text
    :align: right
+
+.. image:: picture2.jpeg
+
+.. image:: picture3.jpeg

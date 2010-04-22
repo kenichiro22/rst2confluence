@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import sys
+import codecs
+
 from docutils import nodes, writers
 
-import sys
+sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
 
 class Writer(writers.Writer):
     def translate(self):
@@ -63,7 +68,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("\n"*number)
 
     def astext(self):
-        return ''.join(self.content)
+        #sys.stdout.write("".join(self.content))
+        return "".join(self.content)
 
     def unknown_visit(self, node):
         raise Exception("Unknown visit on line %s: %s." % (node.line, repr(node)))
@@ -103,7 +109,18 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_reference(self, node):
-        pass
+        self._add("[")
+
+        self._add(node.children[0].astext() + "|")
+
+        if 'refuri' in node:
+            self._add(node["refuri"])
+        else:
+            assert 'refid' in node, \
+                   'References must have "refuri" or "refid" attribute.'
+            self._add("#" + node["refid"] + "]")
+
+        raise nodes.SkipNode
 
     def depart_reference(self, node):
         pass
@@ -161,8 +178,6 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.list_counter = 1
         self.list_level += 1
 
-        sys.stderr.write("start bullet list:" + str(self.list_level) + "\n")
-
     def depart_enumerated_list(self, node):
         self.list_counter = -1
         self.list_level -= 1
@@ -206,9 +221,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._add("|")
             self._add(",".join(attributes))
         self._add("!")
+        self._newline()
 
     def visit_table(self, node):
         sys.stderr.write("start table\n")
+        raise nodes.SkipNode
 
     def depart_table(self, node):
         sys.stderr.write("end table\n")
@@ -226,16 +243,16 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         sys.stderr.write("")
 
     def visit_row(self, node):
-        self._add("|")
+        pass
 
     def depart_row(self, node):
-        self._add("|")
+        pass
 
     def visit_entry(self, node):
-        sys.stderr.write("")
+        pass
 
     def depart_entry(self, node):
-        sys.stderr.write("")
+        pass
 
     """Definition list
     Confluence wiki does not support definition list
@@ -265,8 +282,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def depart_definition(self, node):
         self._newline()
 
-    def visit_comment(self, node):
-        pass
+    def invisible_visit(self, node):
+        """Invisible nodes should be ignored."""
+        raise nodes.SkipNode
 
-    def depart_comment(self, node):
-        pass
+    visit_comment = invisible_visit
