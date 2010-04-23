@@ -6,3 +6,8 @@ Supported directives:
 * note, warning
 * image
 * definition list
+* simple table
+* block quote
+* text effect
+   * strong
+   * emphasis
