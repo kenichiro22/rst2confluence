@@ -5,6 +5,6 @@
    :alt: alternate text
    :align: right
 
-.. image:: picture2.jpeg
+.. image:: http://www.jus.co.jp/picture2.jpeg
 
-.. image:: picture3.jpeg
+.. image:: images/picture3.jpeg

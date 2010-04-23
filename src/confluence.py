@@ -5,7 +5,7 @@ import codecs
 
 from docutils import nodes, writers
 
-sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
+# sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
 
 class Writer(writers.Writer):
     def translate(self):
@@ -27,12 +27,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_Text',
         'depart_list_item',
         'visit_target', 'depart_target',
-        'depart_field_list',
-        'visit_field', 'depart_field',
-        'depart_field_body',
+#        'depart_field_list',
+#        'visit_field', 'depart_field',
+#        'depart_field_body',
         'visit_decoration', 'depart_decoration',
         'depart_footer',
-        'visit_block_quote', 'depart_block_quote',
         'visit_tgroup', 'depart_tgroup',
         'visit_colspec', 'depart_colspec',
         'depart_image',
@@ -50,6 +49,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.list_counter = -1
 
         self.list_prefix = []
+
+        self.table = False
+        self.table_header = False
+
+        self.quote_level = 0
 
         # Block all output
         self.block = False
@@ -79,11 +83,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first:
+        if not self.first and not self.table:
             self._newline()
 
     def depart_paragraph(self, node):
-        self._newline()
+        if not self.table:
+            self._newline()
         self.first = False
 
     def visit_Text(self, node):
@@ -91,16 +96,16 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add(string)
 
     def visit_emphasis(self, node):
-        pass
+        self._add("_")
 
     def depart_emphasis(self, node):
-        pass
+        self._add("_")
 
     def visit_strong(self, node):
-        pass
+        self._add("*")
 
     def depart_strong(self, node):
-        pass
+        self._add("*")
 
     def visit_section(self, node):
         self.section_level += 1
@@ -225,31 +230,45 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_table(self, node):
         sys.stderr.write("start table\n")
-        raise nodes.SkipNode
+        self.table = True
+#        raise nodes.SkipNode
 
     def depart_table(self, node):
         sys.stderr.write("end table\n")
+        self.table = False
+        self._newline()
 
     def visit_thead(self, node):
-        self._add("||")
+        # self._add("||")
+        sys.stderr.write("start thead\n")
+        self.table_header = True
 
     def depart_thead(self, node):
-        self._add("||")
+        self.table_header = False
 
     def visit_tbody(self, node):
-        sys.stderr.write("")
+        sys.stderr.write("start tbody")
 
     def depart_tbody(self, node):
-        sys.stderr.write("")
+        pass
 
     def visit_row(self, node):
-        pass
+        sys.stderr.write("start row\n")
 
     def depart_row(self, node):
-        pass
+        if self.table_header:
+            self._add("||")
+        else:
+            self._add("|")
+
+        self._newline()
 
     def visit_entry(self, node):
-        pass
+        if self.table:
+            if self.table_header:
+                self._add("||")
+            else:
+                self._add("|")
 
     def depart_entry(self, node):
         pass
@@ -281,6 +300,19 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_definition(self, node):
         self._newline()
+
+    def visit_block_quote(self, nde):
+        if self.quote_level == 0:
+            self._add("{quote}")
+
+        self.quote_level += 1
+
+    def depart_block_quote(self, nde):
+        if self.quote_level == 1:
+            self._add("{quote}")
+            self._newline()
+
+        self.quote_level -= 1
 
     def invisible_visit(self, node):
         """Invisible nodes should be ignored."""
