@@ -93,7 +93,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node):
         string = node.astext()
-        self._add(string)
+
+        # rst line break shoud be removed.
+        self._add("".join(string.splitlines()))
 
     def visit_emphasis(self, node):
         self._add("_")
