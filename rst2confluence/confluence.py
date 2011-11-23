@@ -94,7 +94,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = False
 
     def visit_Text(self, node):
-        string = node.astext()
+        string = node.astext().replace("[", "\[")
         if self.keepLineBreaks:
             self._add(string)
         else:
