@@ -153,7 +153,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         if not self.first:
             self._newline()
-        self._add("h" + str(self.section_level) + ".")
+        self._add("h" + str(self.section_level) + ". ")
 
     def depart_title(self, node):
         self._newline(2)
@@ -161,7 +161,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_subtitle(self,node):
         self.title_level += 1
-        self._add("h" + str(self.section_level) + ".")
+        self._add("h" + str(self.section_level) + ". ")
 
     def depart_subtitle(self,node):
         self._newline(2)
