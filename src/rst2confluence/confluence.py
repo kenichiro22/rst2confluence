@@ -337,3 +337,14 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_topic(self, node):
         pass
+
+    def visit_system_message(self, node):
+        self._add(
+            "{warning:title="
+            + "System Message: %s/%s" % (node['type'], node['level'])
+            + "}")
+        self._newline()
+        self._add('{{' + node['source'] + "}}#" + str(node['line']))
+
+    def depart_system_message(self, node):
+        self._add("{warning}")
