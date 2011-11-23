@@ -12,7 +12,7 @@ except:
 
 from docutils.core import publish_cmdline, default_description
 
-import confluence
+from rst2confluence.docutils.writers import confluence
 
 
 description = ('Generates documents in Confluence Wiki format from standalone '
