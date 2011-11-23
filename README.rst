@@ -21,5 +21,10 @@ Usage
 =====
 ::
 
+    ./rst2confluence.py /path/to/file.rst
+
+Installation
+============
+::
+
     sudo ./setup.py install
-    rst2confluence.py /path/to/file.rst
