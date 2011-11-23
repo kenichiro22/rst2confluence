@@ -74,7 +74,6 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("\n"*number)
 
     def astext(self):
-        #sys.stdout.write("".join(self.content))
         return "".join(self.content)
 
     def unknown_visit(self, node):
@@ -243,31 +242,28 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_table(self, node):
-        sys.stderr.write("start table\n")
         self.table = True
 #        raise nodes.SkipNode
 
     def depart_table(self, node):
-        sys.stderr.write("end table\n")
         self.table = False
         self._newline()
 
     def visit_thead(self, node):
         # self._add("||")
-        sys.stderr.write("start thead\n")
         self.table_header = True
 
     def depart_thead(self, node):
         self.table_header = False
 
     def visit_tbody(self, node):
-        sys.stderr.write("start tbody")
+        pass
 
     def depart_tbody(self, node):
         pass
 
     def visit_row(self, node):
-        sys.stderr.write("start row\n")
+        pass
 
     def depart_row(self, node):
         if self.table_header:
