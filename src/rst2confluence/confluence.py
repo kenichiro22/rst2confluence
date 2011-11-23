@@ -92,10 +92,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = False
 
     def visit_Text(self, node):
-        string = node.astext()
-
-        # rst line break shoud be removed.
-        self._add("".join(string.splitlines()))
+        self._add(node.astext())
 
     def visit_emphasis(self, node):
         self._add("_")
@@ -133,16 +130,18 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
-        pass
+        self._add('{code}')
+        self._newline()
 
     def depart_literal_block(self, node):
-        pass
+        self._newline()
+        self._add('{code}')
 
     def visit_literal(self, node):
-        pass
+        self._add('{{')
 
     def depart_literal(self, node):
-        pass
+        self._add('}}')
 
     def visit_footer(self, node):
         pass
