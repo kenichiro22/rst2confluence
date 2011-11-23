@@ -120,15 +120,18 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_reference(self, node):
-        self._add("[")
-
-        self._add(node.children[0].astext() + "|")
-
         if 'refuri' in node:
-            self._add(node["refuri"])
+            if node.children[0].astext() == node["refuri"]:
+                self._add(node.children[0].astext())
+            else:
+                self._add("[")
+                self._add(node.children[0].astext() + "|")
+                self._add(node["refuri"] + "]")
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
+            self._add("[")
+            self._add(node.children[0].astext() + "|")
             self._add("#" + node["refid"] + "]")
 
         raise nodes.SkipNode
@@ -300,7 +303,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        self._add("h6.")
+        self._add("h6. ")
 
     def depart_term(self, node):
         self._newline()
