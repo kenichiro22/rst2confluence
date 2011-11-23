@@ -37,6 +37,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_image',
     ]
 
+    keepLineBreaks = False
+
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
@@ -45,7 +47,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.first = True
         self.list_level = 0
-        self.section_level = 0
+        self.section_level = 1
         self.list_counter = -1
 
         self.list_prefix = []
@@ -92,7 +94,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = False
 
     def visit_Text(self, node):
-        self._add(node.astext())
+        string = node.astext()
+        if self.keepLineBreaks:
+            self._add(string)
+        else:
+            # rst line break shoud be removed.
+            self._add(" ".join(string.splitlines()))
 
     def visit_emphasis(self, node):
         self._add("_")
@@ -130,10 +137,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
+        self.keepLineBreaks = True
         self._add('{code}')
         self._newline()
 
     def depart_literal_block(self, node):
+        self.keepLineBreaks = False
         self._newline()
         self._add('{code}')
 
@@ -323,8 +332,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_topic(self, node):
         self._add("{toc}")
-        self._newline()
-        self._newline()
+        self._newline(2)
         raise nodes.SkipNode
 
     def depart_topic(self, node):
