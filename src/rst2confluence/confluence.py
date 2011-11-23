@@ -321,3 +321,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     visit_comment = invisible_visit
+
+    def visit_topic(self, node):
+        self._add("{toc}")
+        self._newline()
+        self._newline()
+        raise nodes.SkipNode
+
+    def depart_topic(self, node):
+        pass
