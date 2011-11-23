@@ -148,6 +148,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.keepLineBreaks = False
         self._newline()
         self._add('{code}')
+        self._newline()
 
     def visit_literal(self, node):
         self._add('{{')
