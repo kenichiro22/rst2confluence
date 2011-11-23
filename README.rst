@@ -22,4 +22,4 @@ Usage
 ::
 
     sudo ./setup.py install
-    rst2confluence /path/to/file.rst
+    rst2confluence.py /path/to/file.rst
