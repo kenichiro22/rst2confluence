@@ -1,6 +1,6 @@
-==============================================================
+=============================================
 Convert reStructuredText to Confluence markup
-==============================================================
+=============================================
 
 Supported directives
 ====================
@@ -16,6 +16,10 @@ Supported directives
 
   - strong
   - emphasis
+  - monospace
+- code blocks
+- links
+
 
 Usage
 =====
