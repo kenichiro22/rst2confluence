@@ -1,0 +1,9 @@
+2011-11-23  Christian Weiske  <christian.weiske@netresearch.de>
+
+	* Add code block support
+	* Add system message support (errors + warnings)
+	* Add TOC (table of contents) support
+	* Fix escaping of [ characters in text
+	* Setup script
+	* Version 0.2
+

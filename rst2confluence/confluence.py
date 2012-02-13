@@ -37,6 +37,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_image',
     ]
 
+    keepLineBreaks = False
+
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
@@ -45,7 +47,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.first = True
         self.list_level = 0
-        self.section_level = 0
+        self.section_level = 1
         self.list_counter = -1
 
         self.list_prefix = []
@@ -72,7 +74,6 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("\n"*number)
 
     def astext(self):
-        #sys.stdout.write("".join(self.content))
         return "".join(self.content)
 
     def unknown_visit(self, node):
@@ -92,10 +93,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = False
 
     def visit_Text(self, node):
-        string = node.astext()
-
-        # rst line break shoud be removed.
-        self._add("".join(string.splitlines()))
+        string = node.astext().replace("[", "\[")
+        if self.keepLineBreaks:
+            self._add(string)
+        else:
+            # rst line break shoud be removed.
+            self._add(" ".join(string.splitlines()))
 
     def visit_emphasis(self, node):
         self._add("_")
@@ -116,15 +119,18 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_reference(self, node):
-        self._add("[")
-
-        self._add(node.children[0].astext() + "|")
-
         if 'refuri' in node:
-            self._add(node["refuri"])
+            if node.children[0].astext() == node["refuri"]:
+                self._add(node.children[0].astext())
+            else:
+                self._add("[")
+                self._add(node.children[0].astext() + "|")
+                self._add(node["refuri"] + "]")
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
+            self._add("[")
+            self._add(node.children[0].astext() + "|")
             self._add("#" + node["refid"] + "]")
 
         raise nodes.SkipNode
@@ -133,16 +139,21 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
-        pass
+        self.keepLineBreaks = True
+        self._add('{code}')
+        self._newline()
 
     def depart_literal_block(self, node):
-        pass
+        self.keepLineBreaks = False
+        self._newline()
+        self._add('{code}')
+        self._newline()
 
     def visit_literal(self, node):
-        pass
+        self._add('{{')
 
     def depart_literal(self, node):
-        pass
+        self._add('}}')
 
     def visit_footer(self, node):
         pass
@@ -153,7 +164,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         if not self.first:
             self._newline()
-        self._add("h" + str(self.section_level) + ".")
+        self._add("h" + str(self.section_level) + ". ")
 
     def depart_title(self, node):
         self._newline(2)
@@ -161,7 +172,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_subtitle(self,node):
         self.title_level += 1
-        self._add("h" + str(self.section_level) + ".")
+        self._add("h" + str(self.section_level) + ". ")
 
     def depart_subtitle(self,node):
         self._newline(2)
@@ -231,31 +242,28 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_table(self, node):
-        sys.stderr.write("start table\n")
         self.table = True
 #        raise nodes.SkipNode
 
     def depart_table(self, node):
-        sys.stderr.write("end table\n")
         self.table = False
         self._newline()
 
     def visit_thead(self, node):
         # self._add("||")
-        sys.stderr.write("start thead\n")
         self.table_header = True
 
     def depart_thead(self, node):
         self.table_header = False
 
     def visit_tbody(self, node):
-        sys.stderr.write("start tbody")
+        pass
 
     def depart_tbody(self, node):
         pass
 
     def visit_row(self, node):
-        sys.stderr.write("start row\n")
+        pass
 
     def depart_row(self, node):
         if self.table_header:
@@ -292,7 +300,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
-        self._add("h6.")
+        self._add("h6. ")
 
     def depart_term(self, node):
         self._newline()
@@ -321,3 +329,22 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     visit_comment = invisible_visit
+
+    def visit_topic(self, node):
+        self._add("{toc}")
+        self._newline(2)
+        raise nodes.SkipNode
+
+    def depart_topic(self, node):
+        pass
+
+    def visit_system_message(self, node):
+        self._add(
+            "{warning:title="
+            + "System Message: %s/%s" % (node['type'], node['level'])
+            + "}")
+        self._newline()
+        self._add('{{' + node['source'] + "}}#" + str(node['line']))
+
+    def depart_system_message(self, node):
+        self._add("{warning}")
