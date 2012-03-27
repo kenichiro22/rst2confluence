@@ -171,7 +171,6 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = True
 
     def visit_subtitle(self,node):
-        self.title_level += 1
         self._add("h" + str(self.section_level) + ". ")
 
     def depart_subtitle(self,node):
