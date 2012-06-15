@@ -59,6 +59,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         # Block all output
         self.block = False
+        self.footnote = False
 
         for method in self.empty_methods:
             setattr(self, method, lambda n: None)
@@ -84,11 +85,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first and not self.table:
+        if not self.first and not self.table and not self.footnote:
             self._newline()
 
     def depart_paragraph(self, node):
-        if not self.table:
+        if not self.table and not self.footnote:
             self._newline()
         self.first = False
 
@@ -136,6 +137,34 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def depart_reference(self, node):
+        pass
+
+    def visit_footnote_reference(self, node):
+        self._add("^")
+        self._add(node.children[0].astext())
+        self._add("^")
+
+        raise nodes.SkipNode
+
+    def depart_footnote_reference(self, node):
+        pass
+
+    def visit_footnote(self, node):
+        self.footnote = True
+        self._newline()
+        self._add("bq.")
+
+    def depart_footnote(self, node):
+        self.footnote = False
+
+    def visit_label(self, node):
+        self._add("^")
+        self._add(node.astext())
+        self._add("^ ")
+
+        raise nodes.SkipNode
+
+    def depart_label(self, node):
         pass
 
     def visit_literal_block(self, node):
