@@ -57,6 +57,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.quote_level = 0
 
+        self.figure = False
+        self.figureImage = False
+
         # Block all output
         self.block = False
 
@@ -218,19 +221,33 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # image
     def visit_image(self, node):
+        if self.figure:
+            self.figureImage = node
+        else:
+            self._print_image(node)
+
+    def _print_image(self, node):
         uri = node['uri']
         atts = {}
         if 'alt' in node:
             atts['alt'] = node['alt']
+        if 'title' in node:
+            atts['title'] = node['title']
         if 'width' in node:
             atts['width'] = node['width']
         if 'height' in node:
             atts['height'] = node['height']
+        if 'scale' in node:
+            #confluence has no percentages, so we simply make thumbnail
+            atts['thumbnail'] = True
         if 'align' in node:
             atts['align'] = node['align']
         attributes = []
         for att in atts.iterkeys():
-            attributes.append(att + "=" + atts[att])
+            if atts[att] == True:
+                attributes.append(att)
+            else:
+                attributes.append(att + "=" + atts[att])
 
         self._add("!")
         self._add(uri)
@@ -240,6 +257,23 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("!")
         self._newline()
 
+    # figure
+    def visit_figure(self, node):
+        self.figure = True
+
+    def depart_figure(self, node):
+        foo = vars(node)['attributes']
+        for att in foo:
+            self.figureImage[att] = foo[att]
+
+        self.figure = False
+        self._print_image(self.figureImage)
+
+    def visit_caption(self, node):
+        self.figureImage['title'] = node.children[0]
+        raise nodes.SkipNode
+
+    # table
     def visit_table(self, node):
         self.table = True
 #        raise nodes.SkipNode

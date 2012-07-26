@@ -8,7 +8,7 @@ Supported directives
 - bullet list
 - enumerated list
 - note, warning
-- image
+- image, figure
 - definition list
 - simple table
 - block quote
