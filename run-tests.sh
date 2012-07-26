@@ -14,6 +14,10 @@ for i in $files; do
     diffFile="$i.diff"
     ./rst2confluence.py "$i" > "$outFile"
 
+    if [ ! -f "$expFile" ]; then
+        expFile=/dev/null
+    fi
+
     diff -u "$expFile" "$outFile" > "$diffFile"
     if [ "$?" -ne "0" ]; then
         echo " \033[00;31merror\033[00m"
