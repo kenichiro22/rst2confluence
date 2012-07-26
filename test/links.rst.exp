@@ -1,0 +1,9 @@
+h1. Link test
+
+h2. URL
+
+http://example.org/foo/bar?baz=boo
+
+h2. External
+
+This is [an external link|http://example.org/external].
