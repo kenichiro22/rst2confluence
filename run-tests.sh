@@ -13,6 +13,10 @@ for i in $files; do
     outFile="$i.out"
     diffFile="$i.diff"
     ./rst2confluence.py "$i" > "$outFile"
+    if [ $? -ne 0 ]; then
+        echo "\033[00;31merror running rst2confluence\033[00m"
+        break;
+    fi
 
     if [ ! -f "$expFile" ]; then
         expFile=/dev/null
