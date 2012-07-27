@@ -155,7 +155,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_footnote(self, node):
         self.footnote = True
         self._newline()
-        self._add("bq.")
+        self._add("bq. ")
 
     def depart_footnote(self, node):
         self.footnote = False
