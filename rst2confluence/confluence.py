@@ -60,6 +60,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.figure = False
         self.figureImage = False
 
+        self.openFootnotes = 0
+
         # Block all output
         self.block = False
         self.footnote = False
@@ -143,6 +145,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_footnote_reference(self, node):
+        self.openFootnotes += 1
         self._add("^")
         self._add(node.children[0].astext())
         self._add("^")
@@ -153,12 +156,15 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_footnote(self, node):
+        self.openFootnotes -= 1
         self.footnote = True
         self._newline()
         self._add("bq. ")
 
     def depart_footnote(self, node):
         self.footnote = False
+        if self.openFootnotes == 0:
+            self._newline()
 
     def visit_label(self, node):
         self._add("^")
