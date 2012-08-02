@@ -126,7 +126,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         if 'refuri' in node:
-            if node.children[0].astext() == node["refuri"]:
+            if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
                 self._add(node.children[0].astext())
             else:
                 self._add("[")
