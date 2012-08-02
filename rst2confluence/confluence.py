@@ -113,6 +113,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("_")
 
     def visit_strong(self, node):
+        lastline = self.content[len(self.content) - 1]
+        if not lastline.endswith(" ") and not lastline.endswith("\n"):
+            self._add(" ")
         self._add("*")
 
     def depart_strong(self, node):
