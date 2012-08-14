@@ -1,0 +1,5 @@
+h1. Section to cross-reference
+
+This is the text of the section.
+
+It refers to the section itself, see [my-reference-label|#my-reference-label] .

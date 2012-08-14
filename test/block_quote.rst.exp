@@ -1,0 +1,6 @@
+Block quotes are just:
+{quote}
+Indented paragraphs,
+
+and they may nest.
+{quote}
