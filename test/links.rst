@@ -9,3 +9,9 @@ External
 This is `an external link`_.
 
 .. _an external link: http://example.org/external
+
+Embedded
+--------
+See the `Python home page <http://www.python.org>`_ for info.
+
+Some `internal_page <internal_page>`_ page.

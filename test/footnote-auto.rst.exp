@@ -1,0 +1,6 @@
+^1^ is a reference to footnote 1, and ^2^ is a reference to footnote 2
+
+Text after the footnote paragraph.
+
+bq. ^1^ Footnote text 1
+bq. ^2^ Footnote text 2
