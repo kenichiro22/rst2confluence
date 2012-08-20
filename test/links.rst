@@ -15,3 +15,7 @@ Embedded
 See the `Python home page <http://www.python.org>`_ for info.
 
 Some `internal_page <internal_page>`_ page.
+
+Embedded internal
+-----------------
+Link to a page with spaces: `Foo <Foo%20Bar>`_.

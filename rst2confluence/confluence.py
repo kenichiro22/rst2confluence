@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import codecs
+import urllib
 
 from docutils import nodes, writers
 
@@ -131,10 +132,14 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         if 'refuri' in node:
             if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
                 self._add(node.children[0].astext())
-            else:
+            elif "://" in node["refuri"]:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
                 self._add(node["refuri"] + "]")
+            else:
+                self._add("[")
+                self._add(node.children[0].astext() + "|")
+                self._add(urllib.unquote(node["refuri"]) + "]")
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
