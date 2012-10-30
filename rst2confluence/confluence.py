@@ -251,13 +251,26 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.list_level -= 1
         self.list_prefix.pop()
 
-    # paragraph
+    # admonitions
+    def visit_info(self, node):
+        self._add("{info}")
+
+    def depart_info(self, node):
+        self._add("{info}")
+        self._newline(2)
+
     def visit_note(self, node):
         self._add("{note}")
-        self._newline()
 
     def depart_note(self, node):
         self._add("{note}")
+        self._newline(2)
+
+    def visit_tip(self, node):
+        self._add("{tip}")
+
+    def depart_tip(self, node):
+        self._add("{tip}")
         self._newline(2)
 
     def visit_warning(self, node):

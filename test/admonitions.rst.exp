@@ -1,0 +1,17 @@
+{note}This is a note. This is the second line of the note paragraph.
+
+This is another paragaph in the note.
+{note}
+
+{warning}
+This is a warning
+{warning}
+
+{note}
+This is a note
+{note}
+
+{tip}
+This is a tip
+{tip}
+
