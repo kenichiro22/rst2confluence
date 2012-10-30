@@ -1,0 +1,6 @@
+Brackets get escaped: \[Foo]
+
+Not within code, though:
+{code}
+This [does] not get escaped
+{code}

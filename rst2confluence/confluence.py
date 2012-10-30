@@ -38,6 +38,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_image',
     ]
 
+    inCode = False
     keepLineBreaks = False
 
     def __init__(self, document):
@@ -100,7 +101,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.first = False
 
     def visit_Text(self, node):
-        string = node.astext().replace("[", "\[")
+        string = node.astext()
+        if not self.inCode:
+            string = string.replace("[", "\[")
         if self.keepLineBreaks:
             self._add(string)
         else:
@@ -186,11 +189,13 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_literal_block(self, node):
         self.keepLineBreaks = True
+        self.inCode = True
         self._add('{code}')
         self._newline()
 
     def depart_literal_block(self, node):
         self.keepLineBreaks = False
+        self.inCode = False
         self._newline()
         self._add('{code}')
         self._newline()
