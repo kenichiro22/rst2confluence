@@ -24,6 +24,7 @@ Supported directives
   - note
   - tip
   - warning
+- field lists
 
 
 Usage

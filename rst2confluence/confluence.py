@@ -28,14 +28,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_Text',
         'depart_list_item',
         'visit_target', 'depart_target',
-#        'depart_field_list',
-#        'visit_field', 'depart_field',
-#        'depart_field_body',
         'visit_decoration', 'depart_decoration',
         'depart_footer',
         'visit_tgroup', 'depart_tgroup',
         'visit_colspec', 'depart_colspec',
         'depart_image',
+        'visit_field', 'depart_field', 'depart_field_name'
     ]
 
     inCode = False
@@ -67,6 +65,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         # Block all output
         self.block = False
         self.footnote = False
+        self.field_body = False
 
         for method in self.empty_methods:
             setattr(self, method, lambda n: None)
@@ -92,11 +91,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first and not self.table and not self.footnote:
+        if not self.first and not self.table and not self.footnote and not self.field_body:
             self._newline()
 
     def depart_paragraph(self, node):
-        if not self.table and not self.footnote:
+        if not self.table and not self.footnote and not isinstance(node.parent, nodes.field_body):
             self._newline()
         self.first = False
 
@@ -442,3 +441,23 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_system_message(self, node):
         self._add("{warning}")
+
+
+    #field lists
+    def visit_field_list(self, node):
+        self._newline()
+
+    def depart_field_list(self, node):
+        self._newline()
+
+    def visit_field_name(self, node):
+        self._add("||")
+
+    def visit_field_body(self, node):
+        self.field_body = True
+        self._add("|")
+
+    def depart_field_body(self, node):
+        self.field_body = False
+        self._add("|")
+        self._newline()
