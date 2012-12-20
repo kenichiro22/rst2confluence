@@ -7,7 +7,6 @@ Supported directives
 
 - bullet list
 - enumerated list
-- note, warning
 - image, figure
 - definition list
 - simple table
@@ -19,6 +18,12 @@ Supported directives
   - monospace
 - code blocks
 - links
+- admonitions
+
+  - info
+  - note
+  - tip
+  - warning
 
 
 Usage
