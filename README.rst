@@ -25,6 +25,7 @@ Supported directives
   - tip
   - warning
 - field lists
+- line blocks (except nested ones)
 
 
 Usage

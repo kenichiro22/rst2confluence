@@ -33,7 +33,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'visit_tgroup', 'depart_tgroup',
         'visit_colspec', 'depart_colspec',
         'depart_image',
-        'visit_field', 'depart_field', 'depart_field_name'
+        'visit_field', 'depart_field', 'depart_field_name',
+        'depart_line_block', 'visit_line'
     ]
 
     inCode = False
@@ -460,4 +461,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def depart_field_body(self, node):
         self.field_body = False
         self._add("|")
+        self._newline()
+
+    #line blocks
+    def visit_line_block(self, node):
+        self._newline()
+
+    def depart_line(self, node):
         self._newline()
