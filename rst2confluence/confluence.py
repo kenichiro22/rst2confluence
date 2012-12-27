@@ -465,7 +465,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     #line blocks
     def visit_line_block(self, node):
-        self._newline()
+        if not self.field_body:
+            self._newline()
 
     def depart_line(self, node):
         self._newline()
