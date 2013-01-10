@@ -201,7 +201,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_literal(self, node):
-        self._add('{{')
+        self._add(' {{')
 
     def depart_literal(self, node):
         self._add('}}')
