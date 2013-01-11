@@ -52,6 +52,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.list_counter = -1
 
         self.list_prefix = []
+        self.lineBeginsWithListIndicator = False
 
         self.table = False
         self.table_header = False
@@ -80,6 +81,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def _newline(self, number=1):
         self._add("\n"*number)
+        self.lineBeginsWithListIndicator = False
 
     def astext(self):
         return "".join(self.content)
@@ -92,8 +94,10 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first and not self.table and not self.footnote and not self.field_body:
+        if not self.first and not self.table and not self.footnote and not self.field_body and self.list_level == 0:
             self._newline()
+        if self.list_level > 0 and not self.lineBeginsWithListIndicator:
+            self._add(" " * (self.list_level + (self.list_level > 0)))
 
     def depart_paragraph(self, node):
         if not self.table and not self.footnote and not isinstance(node.parent, nodes.field_body):
@@ -239,6 +243,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_list_item(self, node):
         self._add("".join(self.list_prefix) + " ")
         self.first = True
+        self.lineBeginsWithListIndicator = True
 
     # enumerated list
     def visit_enumerated_list(self, node):
