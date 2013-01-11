@@ -48,7 +48,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.first = True
         self.list_level = 0
-        self.section_level = 1
+        self.section_level = 0
         self.list_counter = -1
 
         self.list_prefix = []
@@ -217,6 +217,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # title
     def visit_title(self, node):
+        if self.section_level == 0:
+            self.section_level = 1
         if not self.first:
             self._newline()
         self._add("h" + str(self.section_level) + ". ")
