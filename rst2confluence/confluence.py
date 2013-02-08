@@ -27,7 +27,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'visit_document', 'depart_document',
         'depart_Text',
         'depart_list_item',
-        'visit_target', 'depart_target',
+        'depart_target',
         'visit_decoration', 'depart_decoration',
         'depart_footer',
         'visit_tgroup', 'depart_tgroup',
@@ -61,6 +61,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.figure = False
         self.figureImage = False
+
+        self.inTitle = False
 
         self.openFootnotes = 0
 
@@ -135,6 +137,15 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def depart_section(self, node):
         self.section_level -= 1
 
+    def cflAnchorValue(self, name):
+        return name.replace("-", "").replace(" ", '').replace(u"ä", "a").replace(u"ö", "o").replace(u"ü", "u").replace(u"ß", "s")
+
+    def visit_target(self, node):
+        if not node.has_key("refid"):
+            return
+        self._add("{anchor:" + self.cflAnchorValue(node["refid"]) + "}")
+        self._newline()
+
     def visit_reference(self, node):
         if 'refuri' in node:
             if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
@@ -152,7 +163,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
                    'References must have "refuri" or "refid" attribute.'
             self._add("[")
             self._add(node.children[0].astext() + "|")
-            self._add("#" + node["refid"] + "]")
+            self._add("#" + self.cflAnchorValue(node["refid"]) + "]")
 
         raise nodes.SkipNode
 
@@ -222,10 +233,14 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         if not self.first:
             self._newline()
         self._add("h" + str(self.section_level) + ". ")
+        self.inTitle = True
 
     def depart_title(self, node):
+        anchorname = self.cflAnchorValue(node.astext()).lower()
+        self._add('{anchor:' + anchorname + '}');
         self._newline(2)
         self.first = True
+        self.inTitle = False
 
     def visit_subtitle(self,node):
         self._add("h" + str(self.section_level) + ". ")

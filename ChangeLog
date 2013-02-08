@@ -1,3 +1,7 @@
+2013-02-08  Christian Weiske  <christian.weiske@netresearch.de>
+
+	* Add support for page-internal anchors
+
 2011-11-23  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Add code block support

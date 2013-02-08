@@ -19,3 +19,7 @@ Some `internal_page <internal_page>`_ page.
 Embedded internal
 -----------------
 Link to a page with spaces: `Foo <Foo%20Bar>`_.
+
+Link to section
+---------------
+See ``reference.rst`` for internal links.

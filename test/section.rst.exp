@@ -1,8 +1,8 @@
-h1. Section1
+h1. Section1{anchor:section1}
 
-h2. Section1-1
+h2. Section1-1{anchor:section11}
 
-h3. Section1-2
+h3. Section1-2{anchor:section12}
 
-h1. Section2
+h1. Section2{anchor:section2}
 

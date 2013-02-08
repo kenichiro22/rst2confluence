@@ -1,5 +1,10 @@
-h1. Section to cross-reference
+h1. Section to cross-reference{anchor:sectiontocrossreference}
 
+{anchor:myreferencelabel}
 This is the text of the section.
 
-It refers to the section itself, see [my-reference-label|#my-reference-label] .
+It refers to the section itself, see [my-reference-label|#myreferencelabel] .
+
+h1. Section with än Umlaut{anchor:sectionwithanumlaut}
+
+Link to [Section with än Umlaut|#sectionwithanumlaut].

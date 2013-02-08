@@ -1,19 +1,23 @@
-h1. Link test
+h1. Link test{anchor:linktest}
 
-h2. URL
+h2. URL{anchor:url}
 
 http://example.org/foo/bar?baz=boo
 
-h2. External
+h2. External{anchor:external}
 
 This is [an external link|http://example.org/external].
 
-h2. Embedded
+h2. Embedded{anchor:embedded}
 
 See the [Python home page|http://www.python.org] for info.
 
 Some [internal_page|internal_page] page.
 
-h2. Embedded internal
+h2. Embedded internal{anchor:embeddedinternal}
 
 Link to a page with spaces: [Foo|Foo Bar].
+
+h2. Link to section{anchor:linktosection}
+
+See  {{reference.rst}} for internal links.

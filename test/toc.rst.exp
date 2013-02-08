@@ -1,8 +1,8 @@
 {toc}
 
-h1. Section
+h1. Section{anchor:section}
 
-h2. Subsection
+h2. Subsection{anchor:subsection}
 
-h1. Section 2
+h1. Section 2{anchor:section2}
 
