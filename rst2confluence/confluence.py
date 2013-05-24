@@ -492,3 +492,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_line(self, node):
         self._newline()
+
+
+    #roles http://docutils.sourceforge.net/docs/ref/rst/roles.html
+    def visit_title_reference(self, node):
+        self._add("_")
+
+    def depart_title_reference(self, node):
+        self._add("_")

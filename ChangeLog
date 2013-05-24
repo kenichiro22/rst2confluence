@@ -1,3 +1,7 @@
+2013-05-24  Christian Weiske  <christian.weiske@netresearch.de>
+
+	* Add "title reference" role support
+
 2013-02-08  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Add page-internal anchor support
@@ -47,4 +51,3 @@
 	* Fix escaping of [ characters in text
 	* Setup script
 	* Version 0.2
-
