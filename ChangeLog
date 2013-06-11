@@ -1,6 +1,7 @@
 2013-06-11  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Fix links with [brackets] in URL parameters
+	* Fix lists nested within a info/note/tip/warning within a list
 
 2013-05-24  Christian Weiske  <christian.weiske@netresearch.de>
 

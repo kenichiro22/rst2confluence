@@ -51,7 +51,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.section_level = 0
         self.list_counter = -1
 
-        self.list_prefix = []
+        self.list_prefix = [[]]
         self.lineBeginsWithListIndicator = False
 
         self.table = False
@@ -254,56 +254,71 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     # bullet list
     def visit_bullet_list(self, node):
         self.list_level += 1
-        self.list_prefix.append("*")
+        self.list_prefix[-1].append("*")
 
     def depart_bullet_list(self, node):
         self.list_level -= 1
-        self.list_prefix.pop()
+        self.list_prefix[-1].pop()
 
     def visit_list_item(self, node):
-        self._add("".join(self.list_prefix) + " ")
+        self._add("".join(self.list_prefix[-1]) + " ")
         self.first = True
         self.lineBeginsWithListIndicator = True
 
     # enumerated list
     def visit_enumerated_list(self, node):
-        self.list_prefix.append("#")
+        self.list_prefix[-1].append("#")
         self.list_counter = 1
         self.list_level += 1
 
     def depart_enumerated_list(self, node):
         self.list_counter = -1
         self.list_level -= 1
-        self.list_prefix.pop()
+        self.list_prefix[-1].pop()
 
     # admonitions
     def visit_info(self, node):
         self._add("{info}")
+        self.do_visit_admonition()
 
     def depart_info(self, node):
         self._add("{info}")
-        self._newline(2)
+        self.do_depart_admonition()
 
     def visit_note(self, node):
         self._add("{note}")
+        self.do_visit_admonition()
 
     def depart_note(self, node):
         self._add("{note}")
-        self._newline(2)
+        self.do_depart_admonition()
 
     def visit_tip(self, node):
         self._add("{tip}")
+        self.do_visit_admonition()
 
     def depart_tip(self, node):
         self._add("{tip}")
-        self._newline(2)
+        self.do_depart_admonition()
 
     def visit_warning(self, node):
         self._add("{warning}")
+        self.do_visit_admonition()
 
     def depart_warning(self, node):
         self._add("{warning}")
-        self._newline(2)
+        self.do_depart_admonition()
+
+        #admonition helpers
+    def do_visit_admonition(self):
+        self.list_prefix.append([])
+
+    def do_depart_admonition(self):
+        self.list_prefix.pop()
+        if self.list_level == 0:
+            self._newline(2)
+        else:
+            self._newline()
 
     # image
     def visit_image(self, node):
