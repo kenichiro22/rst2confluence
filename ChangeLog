@@ -2,6 +2,7 @@
 
 	* Fix links with [brackets] in URL parameters
 	* Fix lists nested within a info/note/tip/warning within a list
+	* Version 0.4
 
 2013-05-24  Christian Weiske  <christian.weiske@netresearch.de>
 
