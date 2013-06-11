@@ -4,6 +4,8 @@ URL
 ---
 http://example.org/foo/bar?baz=boo
 
+http://example.org/?foo[bar]=baz
+
 External
 --------
 This is `an external link`_.
@@ -13,6 +15,8 @@ This is `an external link`_.
 Embedded
 --------
 See the `Python home page <http://www.python.org>`_ for info.
+
+And with `special chars <http://example.org/?foo[bar]=baz>`_.
 
 Some `internal_page <internal_page>`_ page.
 

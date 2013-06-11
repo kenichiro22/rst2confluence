@@ -149,11 +149,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         if 'refuri' in node:
             if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
-                self._add(node.children[0].astext())
+                self._add(self.escapeUri(node.children[0].astext()))
             elif "://" in node["refuri"]:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
-                self._add(node["refuri"] + "]")
+                self._add(self.escapeUri(node["refuri"]) + "]")
             else:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
@@ -166,6 +166,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._add("#" + self.cflAnchorValue(node["refid"]) + "]")
 
         raise nodes.SkipNode
+
+    def escapeUri(self, uri):
+        return uri.replace("[", "\[").replace("]", "\]")
 
     def depart_reference(self, node):
         pass

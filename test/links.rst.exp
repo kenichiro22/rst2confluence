@@ -4,6 +4,8 @@ h2. URL{anchor:url}
 
 http://example.org/foo/bar?baz=boo
 
+http://example.org/?foo\[bar\]=baz
+
 h2. External{anchor:external}
 
 This is [an external link|http://example.org/external].
@@ -11,6 +13,8 @@ This is [an external link|http://example.org/external].
 h2. Embedded{anchor:embedded}
 
 See the [Python home page|http://www.python.org] for info.
+
+And with [special chars|http://example.org/?foo\[bar\]=baz].
 
 Some [internal_page|internal_page] page.
 
