@@ -109,7 +109,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         string = node.astext()
         if not self.inCode:
-            string = string.replace("[", "\[")
+            string = string.replace("[", "\[").replace('{', '&#123;').replace('}', '&#125;')
         if self.keepLineBreaks:
             self._add(string)
         else:
@@ -123,9 +123,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("_")
 
     def visit_strong(self, node):
-        lastline = self.content[len(self.content) - 1]
-        if not lastline.endswith(" ") and not lastline.endswith("\n"):
-            self._add(" ")
+        self._add_space_when_needed()
         self._add("*")
 
     def depart_strong(self, node):
@@ -219,7 +217,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_literal(self, node):
-        self._add(' {{')
+        self._add_space_when_needed()
+        self._add('{{')
 
     def depart_literal(self, node):
         self._add('}}')
@@ -518,3 +517,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_title_reference(self, node):
         self._add("_")
+
+    def _add_space_when_needed(self):
+        lastline = self.content[len(self.content) - 1]
+        if not lastline.endswith(" ") and not lastline.endswith("\n"):
+            self._add(" ")

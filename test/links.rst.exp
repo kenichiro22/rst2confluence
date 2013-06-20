@@ -24,4 +24,4 @@ Link to a page with spaces: [Foo|Foo Bar].
 
 h2. Link to section{anchor:linktosection}
 
-See  {{reference.rst}} for internal links.
+See {{reference.rst}} for internal links.

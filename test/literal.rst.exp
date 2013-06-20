@@ -1,0 +1,19 @@
+Literal {{words}} of text.
+
+We may have code blocks, too:
+{code}
+<?php
+echo "Foo\n";
+
+exit(1);
+?>
+{code}
+
+This is outside the block.
+
+Here is a {{&#123;variable&#125;}} in a literal block.
+
+Code with curly braces:
+{code}
+{this} is {{{really}}} {{curly}}!
+{code}
