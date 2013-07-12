@@ -34,13 +34,14 @@ Additional features
 
 Image galleries
 ---------------
-Class names beginning with ``gallery-`` form a gallery::
+Images and figures with class names that begin with
+``gallery-`` form a gallery::
 
    .. image:: cat.jpg
        :class: gallery-1
    .. image:: dog.jpg
        :class: gallery-1
-   .. image:: horse.jpg
+   .. figure:: horse.jpg
        :class: gallery-2
        :scale: 50%
 

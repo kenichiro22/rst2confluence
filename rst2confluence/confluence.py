@@ -335,16 +335,15 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # image
     def visit_image(self, node):
-        if self.figure:
-            self.figureImage = node
-            return
-
         if 'classes' in node:
             for classval in node['classes']:
                 if classval.startswith("gallery-"):
                     self._print_image_gallery(node, classval)
                     return
-        self._print_image(node)
+        if self.figure:
+            self.figureImage = node
+        else:
+            self._print_image(node)
 
     def _print_image(self, node):
         uri = node['uri']
@@ -390,12 +389,17 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.figure = True
 
     def depart_figure(self, node):
+        if not self.figureImage:
+            #happens in gallery mode
+            return
+
         foo = vars(node)['attributes']
         for att in foo:
             self.figureImage[att] = foo[att]
 
         self.figure = False
         self._print_image(self.figureImage)
+        self.figureImage = None
 
     def visit_caption(self, node):
         self.figureImage['title'] = node.children[0]

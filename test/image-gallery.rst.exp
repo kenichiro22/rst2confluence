@@ -4,3 +4,6 @@ Class names beginning with "gallery-" form a gallery.
 
 Some text. The next images starts a fresh gallery, despite the already used class.
 {gallery:include=cat.jpg}
+
+Figures are supported, too:
+{gallery:include=cat.jpg,dog.jpg}

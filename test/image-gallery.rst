@@ -15,3 +15,11 @@ used class.
 
 .. image:: cat.jpg
    :class: gallery-2
+
+Figures are supported, too:
+
+.. figure:: cat.jpg
+   :class: gallery-1
+
+.. figure:: dog.jpg
+   :class: gallery-1
