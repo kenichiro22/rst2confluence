@@ -1,6 +1,8 @@
 2013-07-12  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Fix single URLs in table cells
+	* Fix lists within table cells
+	* Fix multiple paragraphs within table cells
 
 2013-06-20  Christian Weiske  <christian.weiske@netresearch.de>
 

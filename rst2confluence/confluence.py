@@ -53,6 +53,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.list_prefix = [[]]
         self.lineBeginsWithListIndicator = False
+        self.addedNewline = False
 
         self.table = False
         self.table_header = False
@@ -76,14 +77,24 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def _add(self, string):
         if not self.block:
+            self.addedNewline = False
             self.content.append(string)
 
     def _indent(self):
         self._add(" " * self.list_level * 2)
 
     def _newline(self, number=1):
-        self._add("\n"*number)
+        if self.addedNewline and self.table:
+            self.content[self.lastTableEntryBar] += "{div}"
+            self.tableEntryDiv = True
+        self._add("\n" * number)
+        self.addedNewline = True
         self.lineBeginsWithListIndicator = False
+
+    def _remove_last_newline(self):
+        if self.addedNewline:
+            self.content.pop(len(self.content) - 1)
+            self.addedNewline = False
 
     def astext(self):
         return "".join(self.content)
@@ -96,13 +107,13 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first and not self.table and not self.footnote and not self.field_body and self.list_level == 0:
+        if not self.first and not self.footnote and not self.field_body and self.list_level == 0:
             self._newline()
         if self.list_level > 0 and not self.lineBeginsWithListIndicator:
             self._add(" " * (self.list_level + (self.list_level > 0)))
 
     def depart_paragraph(self, node):
-        if not self.table and not self.footnote and not isinstance(node.parent, nodes.field_body):
+        if not self.footnote and not isinstance(node.parent, nodes.field_body):
             self._newline()
         self.first = False
 
@@ -409,14 +420,28 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_entry(self, node):
-        if self.table:
-            if self.table_header:
-                self._add("||")
-            else:
-                self._add("|")
+        if not self.table:
+            return
+
+        self.first = True
+        self.tableEntryDiv = False;
+
+        if self.table_header:
+            self._add("||")
+        else:
+            self._add("|")
+        self.lastTableEntryBar = len(self.content) - 1
 
     def depart_entry(self, node):
-        pass
+        if not self.table:
+            return
+
+        self._remove_last_newline()
+        self.first = False
+        if self.tableEntryDiv:
+            #work around bug in confluence
+            # https://jira.atlassian.com/browse/CONF-9785
+            self._add("{div}")
 
     """Definition list
     Confluence wiki does not support definition list
