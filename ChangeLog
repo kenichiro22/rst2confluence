@@ -1,5 +1,9 @@
 2013-07-12  Christian Weiske  <christian.weiske@netresearch.de>
 
+	* Add image gallery support
+
+2013-07-12  Christian Weiske  <christian.weiske@netresearch.de>
+
 	* Fix single URLs in table cells
 	* Fix lists within table cells
 	* Fix multiple paragraphs within table cells
