@@ -3,6 +3,7 @@
 	* Fix single URLs in table cells
 	* Fix lists within table cells
 	* Fix multiple paragraphs within table cells
+	* Version 0.4.2
 
 2013-06-20  Christian Weiske  <christian.weiske@netresearch.de>
 
