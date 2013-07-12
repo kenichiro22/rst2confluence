@@ -147,6 +147,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         if 'refuri' in node:
             if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
+                if self.table and self._endswidth("|"):
+                    self._add(" ")
                 self._add(self.escapeUri(node.children[0].astext()))
             elif "://" in node["refuri"]:
                 self._add("[")
@@ -522,3 +524,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         lastline = self.content[len(self.content) - 1]
         if not lastline.endswith(" ") and not lastline.endswith("\n"):
             self._add(" ")
+
+    def _endswidth(self, string):
+        lastline = self.content[len(self.content) - 1]
+        return lastline.endswith(string)
