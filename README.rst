@@ -80,3 +80,12 @@ Check if it does what it should::
 Run a single test::
 
     ./run-test.sh test/figure.rst
+
+
+===========
+Other tools
+===========
+Use deploy-rst__ to automatically deploy rST documents into confluence.
+
+
+__ https://github.com/netresearch/deploy-rst
