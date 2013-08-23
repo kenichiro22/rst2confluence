@@ -181,13 +181,13 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_literal_block(self, node):
         self.keepLineBreaks = True
-        self._add('{code}')
+        self._add('{noformat}')
         self._newline()
 
     def depart_literal_block(self, node):
         self.keepLineBreaks = False
         self._newline()
-        self._add('{code}')
+        self._add('{noformat}')
         self._newline()
 
     def visit_literal(self, node):
