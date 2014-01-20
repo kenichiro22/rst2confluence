@@ -1,3 +1,7 @@
+2014-01-20  Christian Weiske  <christian.weiske@netresearch.de>
+
+	* Fix bug #7: Crash on document with a single bold word
+
 2013-07-12  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Add image gallery support

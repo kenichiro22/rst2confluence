@@ -565,6 +565,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("_")
 
     def _add_space_when_needed(self):
+        if len(self.content) == 0:
+            return
         lastline = self.content[len(self.content) - 1]
         if not lastline.endswith(" ") and not lastline.endswith("\n"):
             self._add(" ")
