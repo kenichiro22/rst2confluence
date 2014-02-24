@@ -668,3 +668,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def _endswidth(self, string):
         lastline = self.content[len(self.content) - 1]
         return lastline.endswith(string)
+
+    #substitution definitions
+    def visit_substitution_definition(self, node):
+        raise nodes.SkipNode
