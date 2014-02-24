@@ -419,3 +419,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_system_message(self, node):
         self._add("{warning}")
+
+    #substitution definitions
+    def visit_substitution_definition(self, node):
+        raise nodes.SkipNode
