@@ -27,6 +27,7 @@ Supported directives
   - warning
 - field lists
 - line blocks (except nested ones)
+- meta directives
 
 
 Additional features

@@ -9,10 +9,22 @@ from docutils import nodes, writers
 # sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
 
 class Writer(writers.Writer):
+
+    #Prevent the filtering of the Meta directive.
+    supported = ['html']
+
     def translate(self):
         self.visitor = ConfluenceTranslator(self.document)
+        self.visitor.meta = {}
         self.document.walkabout(self.visitor)
-        self.output = self.visitor.astext()
+        #Save some metadata as a comment, one per line.
+        self.output = unicode()
+        for key in self.visitor.meta.keys():
+            self.output += "###. meta/%s:%s\n" % (key, self.visitor.meta[key])
+
+        if len(self.visitor.meta.keys()) > 0:
+            self.output += "\n"
+        self.output += self.visitor.astext()
 
 
 class ConfluenceTranslator(nodes.NodeVisitor):
@@ -24,21 +36,34 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     """
 
     empty_methods = [
-        'visit_document', 'depart_document',
         'depart_Text',
-        'depart_list_item',
-        'depart_target',
-        'visit_decoration', 'depart_decoration',
+        'depart_colspec',
+        'depart_decoration',
+        'depart_document',
+        'depart_field',
+        'depart_field_name',
         'depart_footer',
-        'visit_tgroup', 'depart_tgroup',
-        'visit_colspec', 'depart_colspec',
         'depart_image',
-        'visit_field', 'depart_field', 'depart_field_name',
-        'depart_line_block', 'visit_line'
+        'depart_line_block',
+        'depart_list_item',
+        'depart_meta',
+        'depart_raw',
+        'depart_target',
+        'depart_tgroup',
+        'visit_colspec',
+        'visit_decoration',
+        'visit_document',
+        'visit_field',
+        'visit_line',
+        'visit_raw',
+        'visit_tgroup'
     ]
 
     inCode = False
     keepLineBreaks = False
+    lastTableEntryBar = 0
+    docinfo = False
+    meta = {}
 
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
@@ -314,6 +339,75 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("{tip}")
         self.do_depart_admonition()
 
+    def visit_docinfo(self, node):
+        self.table = True
+        self.docinfo = True
+
+    def visit_meta(self, node):
+        name = node.get('name')
+        content = node.get('content')
+        self.meta[name] = content
+
+    def depart_docinfo(self, node):
+        self.table = False
+        self.docinfo = False
+        self._newline(2)
+
+    def _docinfo_field(self, node):
+        #non-standard docinfo field, becomes a generic field element.
+        #and render as normal table fields.
+        if self.docinfo:
+            self._add("||%s|" % node.__class__.__name__)
+            self.visit_field_body(node)
+
+    def visit_author(self, node):
+        return self._docinfo_field(node)
+
+    def depart_author(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_contact(self, node):
+        return self._docinfo_field(node)
+
+    def depart_contact(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_date(self, node):
+        return self._docinfo_field(node)
+
+    def depart_date(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_status(self, node):
+        return self._docinfo_field(node)
+
+    def depart_status(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_version(self, node):
+        return self._docinfo_field(node)
+
+    def depart_version(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_revision(self, node):
+        return self._docinfo_field(node)
+
+    def depart_revision(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_inline(self, node):
+        pass
+
+    def depart_inline(self, node):
+        pass
+
     def visit_warning(self, node):
         self._add("{warning}")
         self.do_visit_admonition()
@@ -322,7 +416,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("{warning}")
         self.do_depart_admonition()
 
-        #admonition helpers
+    #admonition helpers
     def do_visit_admonition(self):
         self.list_prefix.append([])
 
