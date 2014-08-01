@@ -1,3 +1,11 @@
+2014-08-01  Christian Weiske  <christian.weiske@netresearch.de>
+
+	* Version 0.5.0
+
+2014-02-24  Glenn Hutchings  <zondo42@gmail.com>
+
+	* Add support for substitution definitions.
+
 2014-03-14  José Manuel Fardello  <jmfardello@gmail.com>
 
 	* Add meta directive support

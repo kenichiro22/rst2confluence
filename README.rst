@@ -8,9 +8,9 @@ Supported directives
 
 - bullet list
 - enumerated list
-- image, figure
+- image, figure, confluence image galleries
 - definition list
-- simple table
+- simple and grid tables
 - block quote
 - text effect
 
@@ -28,6 +28,7 @@ Supported directives
 - field lists
 - line blocks (except nested ones)
 - meta directives
+- substitutions
 
 
 Additional features
