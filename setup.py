@@ -8,7 +8,7 @@ if not os.path.exists('scripts'):
 shutil.copyfile('rst2confluence.py', 'scripts/rst2confluence')
 
 setup(name='rst2confluence',
-      version='0.4.2',
+      version='0.5.0',
       description='reStructuredText-to-Confluence markup converter',
       author='Kenichiro TANAKA',
       author_email='tanaka.kenichiro@gmail.com',
