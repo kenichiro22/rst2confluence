@@ -69,6 +69,12 @@ Installation
     sudo ./setup.py install
 
 
+============
+Dependencies
+============
+- ``python-docutils``
+
+
 =====
 Tests
 =====
