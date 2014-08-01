@@ -65,9 +65,13 @@ Usage
 ============
 Installation
 ============
-::
+From git checkout::
 
-    sudo ./setup.py install
+    $ sudo ./setup.py install
+
+Without a git checkout::
+
+    $ pip install rst2confluence
 
 
 ============
