@@ -2,16 +2,29 @@
 # -*- coding: utf-8 -*-
 import sys
 import codecs
+import urllib
 
 from docutils import nodes, writers
 
 # sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
 
 class Writer(writers.Writer):
+
+    #Prevent the filtering of the Meta directive.
+    supported = ['html']
+
     def translate(self):
         self.visitor = ConfluenceTranslator(self.document)
+        self.visitor.meta = {}
         self.document.walkabout(self.visitor)
-        self.output = self.visitor.astext()
+        #Save some metadata as a comment, one per line.
+        self.output = unicode()
+        for key in self.visitor.meta.keys():
+            self.output += "###. meta/%s:%s\n" % (key, self.visitor.meta[key])
+
+        if len(self.visitor.meta.keys()) > 0:
+            self.output += "\n"
+        self.output += self.visitor.astext()
 
 
 class ConfluenceTranslator(nodes.NodeVisitor):
@@ -23,21 +36,34 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     """
 
     empty_methods = [
-        'visit_document', 'depart_document',
         'depart_Text',
-        'depart_list_item',
-        'visit_target', 'depart_target',
-#        'depart_field_list',
-#        'visit_field', 'depart_field',
-#        'depart_field_body',
-        'visit_decoration', 'depart_decoration',
+        'depart_colspec',
+        'depart_decoration',
+        'depart_document',
+        'depart_field',
+        'depart_field_name',
         'depart_footer',
-        'visit_tgroup', 'depart_tgroup',
-        'visit_colspec', 'depart_colspec',
         'depart_image',
+        'depart_line_block',
+        'depart_list_item',
+        'depart_meta',
+        'depart_raw',
+        'depart_target',
+        'depart_tgroup',
+        'visit_colspec',
+        'visit_decoration',
+        'visit_document',
+        'visit_field',
+        'visit_line',
+        'visit_raw',
+        'visit_tgroup'
     ]
 
+    inCode = False
     keepLineBreaks = False
+    lastTableEntryBar = 0
+    docinfo = False
+    meta = {}
 
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
@@ -47,10 +73,12 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.first = True
         self.list_level = 0
-        self.section_level = 1
+        self.section_level = 0
         self.list_counter = -1
 
-        self.list_prefix = []
+        self.list_prefix = [[]]
+        self.lineBeginsWithListIndicator = False
+        self.addedNewline = False
 
         self.table = False
         self.table_header = False
@@ -59,25 +87,40 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
         self.figure = False
         self.figureImage = False
+        self.lastGalleryClass = ""
+
+        self.inTitle = False
 
         self.openFootnotes = 0
 
         # Block all output
         self.block = False
         self.footnote = False
+        self.field_body = False
 
         for method in self.empty_methods:
             setattr(self, method, lambda n: None)
 
     def _add(self, string):
         if not self.block:
+            self.addedNewline = False
             self.content.append(string)
 
     def _indent(self):
         self._add(" " * self.list_level * 2)
 
     def _newline(self, number=1):
-        self._add("\n"*number)
+        if self.addedNewline and self.table:
+            self.content[self.lastTableEntryBar] += "{div}"
+            self.tableEntryDiv = True
+        self._add("\n" * number)
+        self.addedNewline = True
+        self.lineBeginsWithListIndicator = False
+
+    def _remove_last_newline(self):
+        if self.addedNewline:
+            self.content.pop(len(self.content) - 1)
+            self.addedNewline = False
 
     def astext(self):
         return "".join(self.content)
@@ -90,21 +133,25 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
-        if not self.first and not self.table and not self.footnote:
+        if not self.first and not self.footnote and not self.field_body and self.list_level == 0:
             self._newline()
+        if self.list_level > 0 and not self.lineBeginsWithListIndicator:
+            self._add(" " * (self.list_level + (self.list_level > 0)))
 
     def depart_paragraph(self, node):
-        if not self.table and not self.footnote:
+        if not self.footnote and not isinstance(node.parent, nodes.field_body):
             self._newline()
         self.first = False
 
     def visit_Text(self, node):
-        string = node.astext().replace("[", "\[")
+        string = node.astext()
+        if not self.inCode:
+            string = string.replace("[", "\[").replace('{', '&#123;').replace('}', '&#125;')
         if self.keepLineBreaks:
             self._add(string)
         else:
-            # rst line break shoud be removed.
-            self._add(" ".join(string.splitlines()))
+            # rst line break should be removed.
+            self._add(" ".join(string.split('\n')))
 
     def visit_emphasis(self, node):
         self._add("_")
@@ -113,9 +160,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("_")
 
     def visit_strong(self, node):
-        lastline = self.content[len(self.content) - 1]
-        if not lastline.endswith(" ") and not lastline.endswith("\n"):
-            self._add(" ")
+        self._add_space_when_needed()
         self._add("*")
 
     def depart_strong(self, node):
@@ -127,22 +172,40 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     def depart_section(self, node):
         self.section_level -= 1
 
+    def cflAnchorValue(self, name):
+        return name.replace("-", "").replace(" ", '').replace(u"ä", "a").replace(u"ö", "o").replace(u"ü", "u").replace(u"ß", "s")
+
+    def visit_target(self, node):
+        if not node.has_key("refid"):
+            return
+        self._add("{anchor:" + self.cflAnchorValue(node["refid"]) + "}")
+        self._newline()
+
     def visit_reference(self, node):
         if 'refuri' in node:
             if node.children[0].astext() == node["refuri"] and "://" in node["refuri"]:
-                self._add(node.children[0].astext())
+                if self.table and self._endswidth("|"):
+                    self._add(" ")
+                self._add(self.escapeUri(node.children[0].astext()))
+            elif "://" in node["refuri"]:
+                self._add("[")
+                self._add(node.children[0].astext() + "|")
+                self._add(self.escapeUri(node["refuri"]) + "]")
             else:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
-                self._add(node["refuri"] + "]")
+                self._add(urllib.unquote(node["refuri"]) + "]")
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
             self._add("[")
             self._add(node.children[0].astext() + "|")
-            self._add("#" + node["refid"] + "]")
+            self._add("#" + self.cflAnchorValue(node["refid"]) + "]")
 
         raise nodes.SkipNode
+
+    def escapeUri(self, uri):
+        return uri.replace("[", "\[").replace("]", "\]")
 
     def depart_reference(self, node):
         pass
@@ -181,16 +244,19 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def visit_literal_block(self, node):
         self.keepLineBreaks = True
+        self.inCode = True
         self._add('{code}')
         self._newline()
 
     def depart_literal_block(self, node):
         self.keepLineBreaks = False
+        self.inCode = False
         self._newline()
         self._add('{code}')
         self._newline()
 
     def visit_literal(self, node):
+        self._add_space_when_needed()
         self._add('{{')
 
     def depart_literal(self, node):
@@ -203,13 +269,19 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # title
     def visit_title(self, node):
+        if self.section_level == 0:
+            self.section_level = 1
         if not self.first:
             self._newline()
         self._add("h" + str(self.section_level) + ". ")
+        self.inTitle = True
 
     def depart_title(self, node):
+        anchorname = self.cflAnchorValue(node.astext()).lower()
+        self._add('{anchor:' + anchorname + '}');
         self._newline(2)
         self.first = True
+        self.inTitle = False
 
     def visit_subtitle(self,node):
         self._add("h" + str(self.section_level) + ". ")
@@ -220,45 +292,148 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     # bullet list
     def visit_bullet_list(self, node):
         self.list_level += 1
-        self.list_prefix.append("*")
+        self.list_prefix[-1].append("*")
 
     def depart_bullet_list(self, node):
         self.list_level -= 1
-        self.list_prefix.pop()
+        self.list_prefix[-1].pop()
 
     def visit_list_item(self, node):
-        self._add("".join(self.list_prefix) + " ")
+        self._add("".join(self.list_prefix[-1]) + " ")
         self.first = True
+        self.lineBeginsWithListIndicator = True
 
     # enumerated list
     def visit_enumerated_list(self, node):
-        self.list_prefix.append("#")
+        self.list_prefix[-1].append("#")
         self.list_counter = 1
         self.list_level += 1
 
     def depart_enumerated_list(self, node):
         self.list_counter = -1
         self.list_level -= 1
-        self.list_prefix.pop()
+        self.list_prefix[-1].pop()
 
-    # paragraph
+    # admonitions
+    def visit_info(self, node):
+        self._add("{info}")
+        self.do_visit_admonition()
+
+    def depart_info(self, node):
+        self._add("{info}")
+        self.do_depart_admonition()
+
     def visit_note(self, node):
         self._add("{note}")
-        self._newline()
+        self.do_visit_admonition()
 
     def depart_note(self, node):
         self._add("{note}")
+        self.do_depart_admonition()
+
+    def visit_tip(self, node):
+        self._add("{tip}")
+        self.do_visit_admonition()
+
+    def depart_tip(self, node):
+        self._add("{tip}")
+        self.do_depart_admonition()
+
+    def visit_docinfo(self, node):
+        self.table = True
+        self.docinfo = True
+
+    def visit_meta(self, node):
+        name = node.get('name')
+        content = node.get('content')
+        self.meta[name] = content
+
+    def depart_docinfo(self, node):
+        self.table = False
+        self.docinfo = False
         self._newline(2)
+
+    def _docinfo_field(self, node):
+        #non-standard docinfo field, becomes a generic field element.
+        #and render as normal table fields.
+        if self.docinfo:
+            self._add("||%s|" % node.__class__.__name__)
+            self.visit_field_body(node)
+
+    def visit_author(self, node):
+        return self._docinfo_field(node)
+
+    def depart_author(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_contact(self, node):
+        return self._docinfo_field(node)
+
+    def depart_contact(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_date(self, node):
+        return self._docinfo_field(node)
+
+    def depart_date(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_status(self, node):
+        return self._docinfo_field(node)
+
+    def depart_status(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_version(self, node):
+        return self._docinfo_field(node)
+
+    def depart_version(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_revision(self, node):
+        return self._docinfo_field(node)
+
+    def depart_revision(self, node):
+        if self.docinfo:
+            self.depart_field_body(node)
+
+    def visit_inline(self, node):
+        pass
+
+    def depart_inline(self, node):
+        pass
 
     def visit_warning(self, node):
         self._add("{warning}")
+        self.do_visit_admonition()
 
     def depart_warning(self, node):
         self._add("{warning}")
-        self._newline(2)
+        self.do_depart_admonition()
+
+    #admonition helpers
+    def do_visit_admonition(self):
+        self.list_prefix.append([])
+
+    def do_depart_admonition(self):
+        self.list_prefix.pop()
+        if self.list_level == 0:
+            self._newline(2)
+        else:
+            self._newline()
 
     # image
     def visit_image(self, node):
+        if 'classes' in node:
+            for classval in node['classes']:
+                if classval.startswith("gallery-"):
+                    self._print_image_gallery(node, classval)
+                    return
         if self.figure:
             self.figureImage = node
         else:
@@ -295,17 +470,30 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._add("!")
         self._newline()
 
+    def _print_image_gallery(self, node, galleryclass):
+        uri = node['uri']
+        if galleryclass == self.lastGalleryClass and self.content[-1].startswith("{gallery:"):
+            self.content[-1] = self.content[-1][0:-2] + "," + uri + "}\n"
+        else:
+            self.lastGalleryClass = galleryclass
+            self._add("{gallery:include=" + uri + "}\n")
+
     # figure
     def visit_figure(self, node):
         self.figure = True
 
     def depart_figure(self, node):
+        if not self.figureImage:
+            #happens in gallery mode
+            return
+
         foo = vars(node)['attributes']
         for att in foo:
             self.figureImage[att] = foo[att]
 
         self.figure = False
         self._print_image(self.figureImage)
+        self.figureImage = None
 
     def visit_caption(self, node):
         self.figureImage['title'] = node.children[0]
@@ -345,14 +533,28 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
 
     def visit_entry(self, node):
-        if self.table:
-            if self.table_header:
-                self._add("||")
-            else:
-                self._add("|")
+        if not self.table:
+            return
+
+        self.first = True
+        self.tableEntryDiv = False;
+
+        if self.table_header:
+            self._add("||")
+        else:
+            self._add("|")
+        self.lastTableEntryBar = len(self.content) - 1
 
     def depart_entry(self, node):
-        pass
+        if not self.table:
+            return
+
+        self._remove_last_newline()
+        self.first = False
+        if self.tableEntryDiv:
+            #work around bug in confluence
+            # https://jira.atlassian.com/browse/CONF-9785
+            self._add("{div}")
 
     """Definition list
     Confluence wiki does not support definition list
@@ -419,3 +621,55 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_system_message(self, node):
         self._add("{warning}")
+
+
+    #field lists
+    def visit_field_list(self, node):
+        self._newline()
+
+    def depart_field_list(self, node):
+        self._newline()
+
+    def visit_field_name(self, node):
+        self._add("||")
+
+    def visit_field_body(self, node):
+        self.field_body = True
+        self._add("|")
+
+    def depart_field_body(self, node):
+        self.field_body = False
+        self._add("|")
+        self._newline()
+
+    #line blocks
+    def visit_line_block(self, node):
+        if not self.field_body:
+            self._newline()
+
+    def depart_line(self, node):
+        self._newline()
+
+
+    #roles http://docutils.sourceforge.net/docs/ref/rst/roles.html
+    def visit_title_reference(self, node):
+        self._add("_")
+
+    def depart_title_reference(self, node):
+        self._add("_")
+
+    def _add_space_when_needed(self):
+        if len(self.content) == 0:
+            return
+        lastline = self.content[len(self.content) - 1]
+        if not lastline.endswith(" ") and not lastline.endswith("\n"):
+            self._add(" ")
+
+    def _endswidth(self, string):
+        lastline = self.content[len(self.content) - 1]
+        return lastline.endswith(string)
+
+    #substitution definitions
+    def visit_substitution_definition(self, node):
+        raise nodes.SkipNode
+

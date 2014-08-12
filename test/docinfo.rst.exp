@@ -1,0 +1,14 @@
+###. meta/keywords:foo, bar
+###. meta/title:foo document
+
+h1. Foo{anchor:foo}
+
+||author||Foo Bar|
+||contact||[foo.bar@baz.org|mailto:foo.bar@baz.org]|
+||date||Mon, 09 Dec 2013 10:54:14 GMT|
+||status||Work In Progress|
+||version||1|
+||revision||01|
+||Filename|$RCSfile$|
+
+

@@ -14,7 +14,7 @@ for i in $files; do
     diffFile="$i.diff"
     ./rst2confluence.py "$i" > "$outFile"
     if [ $? -ne 0 ]; then
-        echo "\033[00;31merror running rst2confluence\033[00m"
+        echo -e "\033[00;31merror running rst2confluence\033[00m"
         break;
     fi
 
@@ -24,12 +24,12 @@ for i in $files; do
 
     diff -u "$expFile" "$outFile" > "$diffFile"
     if [ "$?" -ne "0" ]; then
-        echo " \033[00;31merror\033[00m"
+        echo -e " \033[00;31merror\033[00m"
         cat "$diffFile" | colordiff
         break;
     else
         #all fine
-        echo " \033[00;32mok\033[00m"
+        echo -e " \033[00;32mok\033[00m"
         rm "$outFile"
         rm "$diffFile"
     fi
