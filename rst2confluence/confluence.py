@@ -150,8 +150,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         if self.keepLineBreaks:
             self._add(string)
         else:
-            # rst line break shoud be removed.
-            self._add(" ".join(string.splitlines()))
+            # rst line break should be removed.
+            self._add(" ".join(string.split('\n')))
 
     def visit_emphasis(self, node):
         self._add("_")
