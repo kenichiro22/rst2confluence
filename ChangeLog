@@ -1,3 +1,8 @@
+2014-08-13  Adrian Castravete  <adrian.castravete@gmail.com>
+
+	* Fix weird splitline behaviour
+	* Version 0.5.1
+
 2014-08-01  Christian Weiske  <christian.weiske@netresearch.de>
 
 	* Version 0.5.0
