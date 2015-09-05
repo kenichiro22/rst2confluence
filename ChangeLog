@@ -9,6 +9,7 @@
 2015-09-05  Florian Rathgeber  <florian.rathgeber@gmail.com>
 
 	* Make the code base PEP8/flake8 compliant
+	* Add a tox.ini file with flake8 configuration
 	* Add handling of classifiers in defintion lists
 
 2014-08-13  Adrian Castravete  <adrian.castravete@gmail.com>
