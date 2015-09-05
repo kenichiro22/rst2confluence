@@ -141,8 +141,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             "Unknown visit on line %s: %s." % (node.line, repr(node)))
 
     def unknown_departure(self, node):
-        raise Exception(
-            "Unknown departure on line %s: %s." % (node.line, repr(node)))
+        raise Exception("Unknown departure on line %s: %s." % (node.line, repr(node)))
 
     def visit_paragraph(self, node):
         if self.firstParagraph and self.generateExcerpt\
@@ -523,15 +522,15 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             atts['height'] = node['height']
         if 'scale' in node:
             # confluence has no percentages, so we simply make thumbnail
-            atts['thumbnail'] = True
+            atts['thumbnail'] = None
         if 'align' in node:
             atts['align'] = node['align']
         attributes = []
         for att in atts.iterkeys():
-            if atts[att] is True:
-                attributes.append(att)
-            else:
+            if atts[att]:
                 attributes.append(att + "=" + atts[att])
+            else:
+                attributes.append(att)
 
         self._add("!")
         self._add(uri)
@@ -641,6 +640,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
     Confluence wiki does not support definition list
     Definition list is converted to h6 section
     """
+
     def visit_definition_list(self, node):
         pass
 
@@ -708,10 +708,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
 
     def visit_system_message(self, node):
         self.element_level += 1
-        self._add(
-            "{warning:title="
-            + "System Message: %s/%s" % (node['type'], node['level'])
-            + "}")
+        self._add("{warning:title=System Message: %s/%s}" % (node['type'], node['level']))
         self._newline()
         self._add('{{' + node['source'] + "}}#" + str(node['line']))
 

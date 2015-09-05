@@ -18,6 +18,7 @@ def rst2tree(txt):
     parser.parse(txt, document)
     return document
 
+
 doc = rst2tree(txt)
 
 print doc.pformat('  ')
