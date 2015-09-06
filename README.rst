@@ -84,7 +84,7 @@ Without a git checkout::
 Dependencies
 ============
 - ``python-docutils``
-
+- ``colordiff`` (for running the tests)
 
 =====
 Tests
