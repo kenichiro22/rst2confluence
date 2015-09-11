@@ -1,6 +1,3 @@
-###. meta/keywords:foo, bar
-###. meta/title:foo document
-
 h1. Foo{anchor:foo}
 
 ||author||Foo Bar|

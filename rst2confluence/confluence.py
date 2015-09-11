@@ -19,11 +19,6 @@ class Writer(writers.Writer):
         self.document.walkabout(self.visitor)
         #Save some metadata as a comment, one per line.
         self.output = unicode()
-        for key in self.visitor.meta.keys():
-            self.output += "###. meta/%s:%s\n" % (key, self.visitor.meta[key])
-
-        if len(self.visitor.meta.keys()) > 0:
-            self.output += "\n"
         self.output += self.visitor.astext()
 
 
