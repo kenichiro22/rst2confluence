@@ -10,7 +10,7 @@ shutil.copyfile('rst2confluence.py', 'scripts/rst2confluence')
 
 setup(
     name='rst2confluence',
-    version='0.5.1',
+    version='0.6.0',
     description='reStructuredText-to-Confluence markup converter',
 
     author='Kenichiro TANAKA',
