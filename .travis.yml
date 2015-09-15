@@ -6,5 +6,7 @@ python:
   - 3.2
   - 3.3
   - 3.4
-install: pip install docutils
-script: ./run-tests.sh
+install: pip install docutils flake8
+script:
+  - ./run-tests.sh
+  - flake8 .
