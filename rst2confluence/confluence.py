@@ -4,7 +4,7 @@ import sys
 import codecs
 import urllib
 
-from docutils import nodes, writers
+from docutils import frontend, nodes, writers
 
 # sys.stdout = codecs.getwriter('shift_jis')(sys.stdout)
 
@@ -12,6 +12,21 @@ class Writer(writers.Writer):
 
     #Prevent the filtering of the Meta directive.
     supported = ['html']
+
+    settings_spec = (
+        'rST-specific options',
+        None,
+        (
+            (
+                'Generate {{excerpt}} around the first paragraph',
+                ['--excerpt'],
+                {
+                    'action': 'store_true',
+                    'validator': frontend.validate_boolean
+                }
+            ),
+        )
+     )
 
     def translate(self):
         self.visitor = ConfluenceTranslator(self.document)
@@ -36,12 +51,8 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         'depart_decoration',
         'depart_document',
         'depart_field',
-        'depart_field_name',
         'depart_footer',
-        'depart_image',
         'depart_line_block',
-        'depart_list_item',
-        'depart_meta',
         'depart_raw',
         'depart_target',
         'depart_tgroup',
@@ -58,15 +69,20 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     keepLineBreaks = False
     lastTableEntryBar = 0
     docinfo = False
+    generateExcerpt = False
     meta = {}
 
     def __init__(self, document):
         nodes.NodeVisitor.__init__(self, document)
         self.settings = document.settings
 
+        if self.settings.excerpt:
+            self.generateExcerpt = True
+
         self.content = []
 
         self.first = True
+        self.firstParagraph = True
         self.list_level = 0
         self.section_level = 0
         self.list_counter = -1
@@ -78,6 +94,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.table = False
         self.table_header = False
 
+        self.element_level = 0
         self.quote_level = 0
 
         self.figure = False
@@ -128,14 +145,23 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
 
     def visit_paragraph(self, node):
+        if self.firstParagraph and self.generateExcerpt and self.element_level == 0:
+            self._add('{excerpt}')
+
+        self.element_level += 1
         if not self.first and not self.footnote and not self.field_body and self.list_level == 0:
             self._newline()
         if self.list_level > 0 and not self.lineBeginsWithListIndicator:
             self._add(" " * (self.list_level + (self.list_level > 0)))
 
     def depart_paragraph(self, node):
+        if self.firstParagraph and self.element_level == 1:
+            if self.generateExcerpt:
+                self._add('{excerpt}')
+            self.firstParagraph = False
         if not self.footnote and not isinstance(node.parent, nodes.field_body):
             self._newline()
+        self.element_level -= 1
         self.first = False
 
     def visit_Text(self, node):
@@ -149,17 +175,21 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._add(" ".join(string.split('\n')))
 
     def visit_emphasis(self, node):
+        self.element_level += 1
         self._add("_")
 
     def depart_emphasis(self, node):
         self._add("_")
+        self.element_level -= 1
 
     def visit_strong(self, node):
+        self.element_level += 1
         self._add_space_when_needed()
         self._add("*")
 
     def depart_strong(self, node):
         self._add("*")
+        self.element_level -= 1
 
     def visit_section(self, node):
         self.section_level += 1
@@ -238,6 +268,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
+        self.element_level += 1
         self.keepLineBreaks = True
         self.inCode = True
         self._add('{code}')
@@ -249,13 +280,16 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline()
         self._add('{code}')
         self._newline()
+        self.element_level -= 1
 
     def visit_literal(self, node):
+        self.element_level += 1
         self._add_space_when_needed()
         self._add('{{')
 
     def depart_literal(self, node):
         self._add('}}')
+        self.element_level -= 1
 
     def visit_footer(self, node):
         pass
@@ -264,6 +298,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # title
     def visit_title(self, node):
+        self.element_level += 1
         if self.section_level == 0:
             self.section_level = 1
         if not self.first:
@@ -277,29 +312,39 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self._newline(2)
         self.first = True
         self.inTitle = False
+        self.element_level -= 1
 
     def visit_subtitle(self,node):
+        self.element_level += 1
         self._add("h" + str(self.section_level) + ". ")
 
     def depart_subtitle(self,node):
         self._newline(2)
+        self.element_level -= 1
 
     # bullet list
     def visit_bullet_list(self, node):
+        self.element_level += 1
         self.list_level += 1
         self.list_prefix[-1].append("*")
 
     def depart_bullet_list(self, node):
         self.list_level -= 1
         self.list_prefix[-1].pop()
+        self.element_level -= 1
 
     def visit_list_item(self, node):
+        self.element_level += 1
         self._add("".join(self.list_prefix[-1]) + " ")
         self.first = True
         self.lineBeginsWithListIndicator = True
 
+    def depart_list_item(self, node):
+        self.element_level -= 1
+
     # enumerated list
     def visit_enumerated_list(self, node):
+        self.element_level += 1
         self.list_prefix[-1].append("#")
         self.list_counter = 1
         self.list_level += 1
@@ -308,45 +353,58 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.list_counter = -1
         self.list_level -= 1
         self.list_prefix[-1].pop()
+        self.element_level -= 1
 
     # admonitions
     def visit_info(self, node):
+        self.element_level += 1
         self._add("{info}")
         self.do_visit_admonition()
 
     def depart_info(self, node):
         self._add("{info}")
         self.do_depart_admonition()
+        -self.element_level
 
     def visit_note(self, node):
+        self.element_level += 1
         self._add("{note}")
         self.do_visit_admonition()
 
     def depart_note(self, node):
         self._add("{note}")
         self.do_depart_admonition()
+        self.element_level -= 1
 
     def visit_tip(self, node):
+        self.element_level += 1
         self._add("{tip}")
         self.do_visit_admonition()
 
     def depart_tip(self, node):
         self._add("{tip}")
         self.do_depart_admonition()
+        self.element_level -= 1
 
     def visit_docinfo(self, node):
+        self.element_level += 1
         self.table = True
         self.docinfo = True
-
-    def visit_meta(self, node):
-        name = node.get('name')
-        content = node.get('content')
-        self.meta[name] = content
 
     def depart_docinfo(self, node):
         self.table = False
         self.docinfo = False
         self._newline(2)
+        self.element_level -= 1
+
+    def visit_meta(self, node):
+        self.element_level += 1
+        name = node.get('name')
+        content = node.get('content')
+        self.meta[name] = content
+
+    def depart_meta(self, node):
+        self.element_level -= 1
 
     def _docinfo_field(self, node):
         #non-standard docinfo field, becomes a generic field element.
@@ -404,15 +462,18 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_warning(self, node):
+        self.element_level += 1
         self._add("{warning}")
         self.do_visit_admonition()
 
     def depart_warning(self, node):
         self._add("{warning}")
         self.do_depart_admonition()
+        self.element_level -= 1
 
     #admonition helpers
     def do_visit_admonition(self):
+        self.element_level += 1
         self.list_prefix.append([])
 
     def do_depart_admonition(self):
@@ -421,9 +482,11 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._newline(2)
         else:
             self._newline()
+        self.element_level -= 1
 
     # image
     def visit_image(self, node):
+        self.element_level += 1
         if 'classes' in node:
             for classval in node['classes']:
                 if classval.startswith("gallery-"):
@@ -433,6 +496,9 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self.figureImage = node
         else:
             self._print_image(node)
+
+    def depart_image(self, node):
+        self.element_level -= 1
 
     def _print_image(self, node):
         uri = node['uri']
@@ -475,6 +541,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # figure
     def visit_figure(self, node):
+        self.element_level += 1
         self.figure = True
 
     def depart_figure(self, node):
@@ -489,6 +556,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.figure = False
         self._print_image(self.figureImage)
         self.figureImage = None
+        self.element_level -= 1
 
     def visit_caption(self, node):
         self.figureImage['title'] = node.children[0]
@@ -496,28 +564,32 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     # table
     def visit_table(self, node):
+        self.element_level += 1
         self.table = True
 #        raise nodes.SkipNode
 
     def depart_table(self, node):
         self.table = False
         self._newline()
+        self.element_level -= 1
 
     def visit_thead(self, node):
+        self.element_level += 1
         # self._add("||")
         self.table_header = True
 
     def depart_thead(self, node):
         self.table_header = False
+        self.element_level -= 1
 
     def visit_tbody(self, node):
-        pass
+        self.element_level += 1
 
     def depart_tbody(self, node):
-        pass
+        self.element_level -= 1
 
     def visit_row(self, node):
-        pass
+        self.element_level += 1
 
     def depart_row(self, node):
         if self.table_header:
@@ -526,8 +598,10 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._add("|")
 
         self._newline()
+        self.element_level -= 1
 
     def visit_entry(self, node):
+        self.element_level += 1
         if not self.table:
             return
 
@@ -550,6 +624,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             #work around bug in confluence
             # https://jira.atlassian.com/browse/CONF-9785
             self._add("{div}")
+        self.element_level -= 1
 
     """Definition list
     Confluence wiki does not support definition list
@@ -568,18 +643,23 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        self.element_level += 1
         self._add("h6. ")
 
     def depart_term(self, node):
         self._newline()
+        self.element_level -= 1
 
     def visit_definition(self, node):
+        self.element_level += 1
         self.first = True
 
     def depart_definition(self, node):
         self._newline()
+        self.element_level -= 1
 
     def visit_block_quote(self, nde):
+        self.element_level += 1
         if self.quote_level == 0:
             self._add("{quote}")
 
@@ -591,6 +671,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
             self._newline()
 
         self.quote_level -= 1
+        self.element_level -= 1
 
     def invisible_visit(self, node):
         """Invisible nodes should be ignored."""
@@ -599,14 +680,16 @@ class ConfluenceTranslator(nodes.NodeVisitor):
     visit_comment = invisible_visit
 
     def visit_topic(self, node):
+        self.element_level += 1
         self._add("{toc}")
         self._newline(2)
         raise nodes.SkipNode
 
     def depart_topic(self, node):
-        pass
+        self.element_level -= 1
 
     def visit_system_message(self, node):
+        self.element_level += 1
         self._add(
             "{warning:title="
             + "System Message: %s/%s" % (node['type'], node['level'])
@@ -616,19 +699,26 @@ class ConfluenceTranslator(nodes.NodeVisitor):
 
     def depart_system_message(self, node):
         self._add("{warning}")
-
+        self.element_level -= 1
 
     #field lists
     def visit_field_list(self, node):
+        self.element_level += 1
         self._newline()
 
     def depart_field_list(self, node):
         self._newline()
+        self.element_level -= 1
 
     def visit_field_name(self, node):
+        self.element_level += 1
         self._add("||")
 
+    def depart_field_name(self, node):
+        self.element_level += 1
+
     def visit_field_body(self, node):
+        self.element_level += 1
         self.field_body = True
         self._add("|")
 
@@ -636,6 +726,7 @@ class ConfluenceTranslator(nodes.NodeVisitor):
         self.field_body = False
         self._add("|")
         self._newline()
+        self.element_level -= 1
 
     #line blocks
     def visit_line_block(self, node):

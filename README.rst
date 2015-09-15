@@ -34,6 +34,12 @@ Supported directives
 Additional features
 ===================
 
+Excerpts
+--------
+When using the command line option ``--excerpt``, your
+confluence code will mark up the first paragraph as excerpt.
+
+
 Image galleries
 ---------------
 Images and figures with class names that begin with
