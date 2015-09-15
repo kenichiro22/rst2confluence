@@ -6,6 +6,11 @@ python:
   - 3.2
   - 3.3
   - 3.4
+matrix:
+  allow_failures:
+    - python: 3.2
+    - python: 3.3
+    - python: 3.4
 install: pip install docutils flake8
 script:
   - ./run-tests.sh
