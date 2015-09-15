@@ -79,9 +79,11 @@ From git checkout::
 
     $ sudo ./setup.py install
 
-Without a git checkout::
+Without a git checkout from the `Python Package Index`__::
 
     $ pip install rst2confluence
+
+__ https://pypi.python.org/pypi/rst2confluence
 
 
 ============
