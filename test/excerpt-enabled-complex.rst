@@ -1,6 +1,8 @@
 Complex excerpt test
 ====================
 
+.. contents::
+
 Lists
 -----
 

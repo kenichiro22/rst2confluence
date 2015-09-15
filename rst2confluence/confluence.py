@@ -702,13 +702,9 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
     visit_comment = invisible_visit
 
     def visit_topic(self, node):
-        self.element_level += 1
         self._add("{toc}")
         self._newline(2)
         raise nodes.SkipNode
-
-    def depart_topic(self, node):
-        self.element_level -= 1
 
     def visit_system_message(self, node):
         self.element_level += 1
