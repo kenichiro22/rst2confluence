@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import os, shutil
+import os
+import shutil
 from distutils.core import setup
 
 if not os.path.exists('scripts'):
@@ -23,6 +24,6 @@ setup(
     license='AGPL',
 
     py_modules=['rst2confluence.confluence'],
-    #package_dir={'rst2confluence': 'src/rst2confluence'},
+    # package_dir={'rst2confluence': 'src/rst2confluence'},
     scripts=['scripts/rst2confluence']
 )

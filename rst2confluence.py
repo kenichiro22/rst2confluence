@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-A minimal front end to the Docutils Publisher, producing Confluence Wiki output.
+Confluence Wiki output generator for the Docutils Publisher.
 """
 
 try:
