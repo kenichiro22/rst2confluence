@@ -648,7 +648,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
         pass
 
     def visit_definition_list_item(self, node):
-        pass
+        self.has_classifier = False
 
     def depart_definition_list_item(self, node):
         pass
@@ -661,8 +661,19 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
         self._newline()
         self.element_level -= 1
 
+    def visit_classifier(self, node):
+        if self.has_classifier:
+            self._add(", ")
+        self._add("_")
+        self.has_classifier = True
+
+    def depart_classifier(self, node):
+        self._add("_")
+
     def visit_definition(self, node):
         self.element_level += 1
+        if self.has_classifier:
+            self._newline()
         self.first = True
 
     def depart_definition(self, node):

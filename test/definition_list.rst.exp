@@ -1,9 +1,16 @@
-h6. term1
-description1
+h6. term 1
+Definition 1.
 
-h6. term2
-description2
+h6. term 2
+Definition 2, paragraph 1.
 
-h6. term3
-description3
+Definition 2, paragraph 2.
+
+h6. term 3
+_classifier_
+Definition 3.
+
+h6. term 4
+_classifier one_, _classifier two_
+Definition 4.
 

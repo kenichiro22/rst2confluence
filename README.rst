@@ -9,7 +9,7 @@ Supported directives
 - bullet list
 - enumerated list
 - image, figure, confluence image galleries
-- definition list
+- definition list (with classifiers)
 - simple and grid tables
 - block quote
 - text effect
