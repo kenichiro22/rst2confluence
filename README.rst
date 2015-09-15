@@ -39,7 +39,9 @@ Additional features
 Excerpts
 --------
 When using the command line option ``--excerpt``, your
-confluence code will mark up the first paragraph as excerpt.
+confluence code will mark up the first paragraph as excerpt__.
+
+__ https://confluence.atlassian.com/doc/excerpt-macro-148062.html
 
 
 Image galleries
