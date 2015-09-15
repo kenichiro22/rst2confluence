@@ -1,6 +1,8 @@
 *********************************************
 Convert reStructuredText to Confluence markup
 *********************************************
+.. image:: https://travis-ci.org/netresearch/rst2confluence.svg?branch=master
+    :target: https://travis-ci.org/netresearch/rst2confluence
 
 ====================
 Supported directives
