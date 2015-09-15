@@ -21,7 +21,7 @@ for i in $files; do
     ./rst2confluence.py $options "$i" > "$outFile"
     if [ $? -ne 0 ]; then
         echo "\033[00;31merror running rst2confluence\033[00m"
-        break;
+        exit 1
     fi
 
     if [ ! -f "$expFile" ]; then
@@ -32,7 +32,7 @@ for i in $files; do
     if [ "$?" -ne "0" ]; then
         echo " \033[00;31merror\033[00m"
         cat "$diffFile" | colordiff
-        break;
+        exit 2
     else
         #all fine
         echo " \033[00;32mok\033[00m"
