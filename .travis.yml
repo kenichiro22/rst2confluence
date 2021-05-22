@@ -11,7 +11,12 @@ matrix:
     - python: 3.2
     - python: 3.3
     - python: 3.4
+addons:
+  apt:
+    packages:
+    - colordiff
 install: pip install docutils flake8
 script:
   - ./run-tests.sh
-  - flake8 .
+  # flake8 no longer supports Python 2.6
+  - if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]]; then flake8 .; fi
