@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib
+
+try:  # Python 3
+    from urllib.parse import unquote
+except ImportError:  # Python 2
+    from urllib import unquote
+
 import six
 
 from docutils import frontend, nodes, writers
@@ -230,10 +235,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             else:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
-                try:  # Python 3
-                    self._add(urllib.parse.unquote(node["refuri"]) + "]")
-                except AttributeError:  # Python 2
-                    self._add(urllib.unquote(node["refuri"]) + "]")
+                self._add(unquote(node["refuri"]) + "]")
 
         else:
             assert 'refid' in node, \
