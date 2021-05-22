@@ -230,9 +230,9 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             else:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
-                try:  # Python = 2.8
+                try:  # Python 3
                     self._add(urllib.parse.unquote(node["refuri"]) + "]")
-                except AttributeError:  # Python < 2.8
+                except AttributeError:  # Python 2
                     self._add(urllib.unquote(node["refuri"]) + "]")
 
         else:
