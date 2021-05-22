@@ -1,16 +1,15 @@
 language: python
 sudo: false
 python:
-  - 2.6
   - 2.7
-  - 3.2
-  - 3.3
   - 3.4
+  - 3.5
+  - 3.6
 matrix:
   allow_failures:
-    - python: 3.2
-    - python: 3.3
-    - python: 3.4
+    - python: 3.7
+    - python: 3.8
+    - python: 3.9
 addons:
   apt:
     packages:
@@ -18,5 +17,4 @@ addons:
 install: pip install docutils flake8
 script:
   - ./run-tests.sh
-  # flake8 no longer supports Python 2.6
-  - if [[ "$TRAVIS_PYTHON_VERSION" != "2.6" ]]; then flake8 .; fi
+  - flake8 .
