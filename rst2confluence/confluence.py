@@ -517,21 +517,21 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
     def _print_image(self, node):
         uri = node['uri']
         atts = {}
+        if 'align' in node:
+            atts['align'] = node['align']
         if 'alt' in node:
             atts['alt'] = node['alt']
-        if 'title' in node:
-            atts['title'] = node['title']
-        if 'width' in node:
-            atts['width'] = node['width']
         if 'height' in node:
             atts['height'] = node['height']
         if 'scale' in node:
             # confluence has no percentages, so we simply make thumbnail
             atts['thumbnail'] = None
-        if 'align' in node:
-            atts['align'] = node['align']
+        if 'title' in node:
+            atts['title'] = node['title']
+        if 'width' in node:
+            atts['width'] = node['width']
         attributes = []
-        for att in atts.iterkeys():
+        for att in sorted(atts.keys()):
             if atts[att]:
                 attributes.append(att + "=" + atts[att])
             else:
