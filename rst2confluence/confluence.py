@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import urllib
+import six
 
 from docutils import frontend, nodes, writers
 
@@ -31,7 +32,7 @@ class Writer(writers.Writer):
         self.visitor.meta = {}
         self.document.walkabout(self.visitor)
         # Save some metadata as a comment, one per line.
-        self.output = unicode()
+        self.output = six.text_type()
         self.output += self.visitor.astext()
 
 
@@ -228,7 +229,11 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             else:
                 self._add("[")
                 self._add(node.children[0].astext() + "|")
-                self._add(urllib.unquote(node["refuri"]) + "]")
+                try:  # Python = 2.8
+                    self._add(urllib.parse.unquote(node["refuri"]) + "]")
+                except AttributeError:  # Python < 2.8
+                    self._add(urllib.unquote(node["refuri"]) + "]")
+
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'

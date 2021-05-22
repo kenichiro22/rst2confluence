@@ -21,4 +21,4 @@ def rst2tree(txt):
 
 doc = rst2tree(txt)
 
-print doc.pformat('  ')
+print(doc.pformat('  '))
