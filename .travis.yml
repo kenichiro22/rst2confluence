@@ -23,7 +23,6 @@ addons:
   apt:
     packages:
     - colordiff
-install: pip install docutils flake8
 script:
   - ./run-tests.sh
   - flake8 .
