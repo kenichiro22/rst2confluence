@@ -142,7 +142,8 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
             "Unknown visit on line %s: %s." % (node.line, repr(node)))
 
     def unknown_departure(self, node):
-        raise Exception("Unknown departure on line %s: %s." % (node.line, repr(node)))
+        raise Exception(
+            "Unknown departure on line %s: %s." % (node.line, repr(node)))
 
     def visit_paragraph(self, node):
         if self.firstParagraph and self.generateExcerpt\
@@ -169,7 +170,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
     def visit_Text(self, node):
         string = node.astext()
         if not self.inCode:
-            string = string.replace("[", "\[")\
+            string = string.replace("[", "\\[")\
                            .replace('{', '&#123;')\
                            .replace('}', '&#125;')
         if self.keepLineBreaks:
@@ -244,7 +245,7 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
         raise nodes.SkipNode
 
     def escapeUri(self, uri):
-        return uri.replace("[", "\[").replace("]", "\]")
+        return uri.replace("[", "\\[").replace("]", "\\]")
 
     def depart_reference(self, node):
         pass
@@ -713,7 +714,9 @@ http://confluence.atlassian.com/display/DOC/Confluence+Notation+Guide+Overview
 
     def visit_system_message(self, node):
         self.element_level += 1
-        self._add("{warning:title=System Message: %s/%s}" % (node['type'], node['level']))
+        self._add(
+            "{warning:title=System Message: %s/%s}" %
+            (node['type'], node['level']))
         self._newline()
         self._add('{{' + node['source'] + "}}#" + str(node['line']))
 
