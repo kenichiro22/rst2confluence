@@ -5,7 +5,8 @@ import codecs
 
 sys.stdout = codecs.getwriter('utf_8')(sys.stdout)
 
-txt  = codecs.open(sys.argv[1], 'r', 'utf_8').read()
+txt = codecs.open(sys.argv[1], 'r', 'utf_8').read()
+
 
 def rst2tree(txt):
     import docutils.parsers.rst
@@ -17,8 +18,7 @@ def rst2tree(txt):
     parser.parse(txt, document)
     return document
 
+
 doc = rst2tree(txt)
 
-print doc.pformat('  ')
-
-
+print(doc.pformat('  '))

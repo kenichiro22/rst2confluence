@@ -1,7 +1,7 @@
-h2. Section1
+h1. Section1{anchor:section1}
 
 Section1Section1
 
-h2. Section2
+h1. Section2{anchor:section2}
 
 Reference to [Section1|#section1]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import os, shutil
+import os
+import shutil
 from distutils.core import setup
 
 if not os.path.exists('scripts'):
@@ -7,13 +8,22 @@ if not os.path.exists('scripts'):
 
 shutil.copyfile('rst2confluence.py', 'scripts/rst2confluence')
 
-setup(name='rst2confluence',
-      version='0.2',
-      description='reStructuredText-to-Confluence markup converter',
-      author='Kenichiro TANAKA',
-      author_email='tanaka.kenichiro@gmail.com',
-      url='https://github.com/kenichiro22/rst2confluence',
-      py_modules=['rst2confluence.confluence'],
-      #package_dir={'rst2confluence': 'src/rst2confluence'},
-      scripts=['scripts/rst2confluence']
-     )
+setup(
+    name='rst2confluence',
+    version='0.6.0',
+    description='reStructuredText-to-Confluence markup converter',
+
+    author='Kenichiro TANAKA',
+    author_email='tanaka.kenichiro@gmail.com',
+
+    maintainer='Christian Weiske',
+    maintainer_email='christian.weiske@netresearch.de',
+
+    url='https://github.com/netresearch/rst2confluence',
+
+    license='AGPL',
+
+    py_modules=['rst2confluence.confluence'],
+    # package_dir={'rst2confluence': 'src/rst2confluence'},
+    scripts=['scripts/rst2confluence']
+)

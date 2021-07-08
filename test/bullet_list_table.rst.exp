@@ -1,0 +1,16 @@
+|Foo|Nested list:
+* One
+** One sub
+** One sub 2
+* Two
+** Two sub|
+|Bar|{div}Paragraphs:
+* One
+
+Second:
+* One
+** One sub
+** One sub 2
+* Two
+** Two sub{div}|
+

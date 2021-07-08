@@ -1,0 +1,8 @@
+We have a non-docinfo field list here:
+
+:Version: 1.23.42
+:Company: Foo Ltd.
+:Authors: - John Doe
+          - Jane Smith
+:Dependencies: - foo
+              - bar
